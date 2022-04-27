@@ -1,10 +1,10 @@
 # Goldex Robot: Integration
 
-Integration with Goldex consists of two major parts: backend integration and UI (terminal) integration.
+Goldex Robot is a vending machine that evaluates gold/silver valuables, sells coins and has internal storage/safebox.
+
+Integration with Goldex consists of two major parts: [backend](https://github.com/goldexrobot/core.integration.backend) integration and UI integration.
 
 This document covers UI integration.
-
-[See backend integration](https://github.com/goldexrobot/core.integration.backend).
 
 ## TL;DR
 
@@ -17,6 +17,8 @@ There are some limitations, unlike the usual website development (details below)
 Standard UI flow is described at the end of the page.
 
 [Swagger](https://goldexrobot.github.io/core.integration.ui/) describes local API.
+
+![Goldex environment](/docs/images/goldex_env.png)
 
 ---
 
