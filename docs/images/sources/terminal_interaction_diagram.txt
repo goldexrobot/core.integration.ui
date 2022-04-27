@@ -1,0 +1,198 @@
+# https://sequencediagram.org/
+
+title Goldex Robot Flow
+
+fontawesome5regular f007 "Customer" as c
+
+participantgroup #DDFFDD **Bot**
+	fontawesome5solid f108 "UI" as u
+	fontawesome5solid f544 "API" as a
+end
+
+participantgroup #DDDDFF **Backend**
+	fontawesome5solid f233 "Bot Backend" as ba
+	fontawesome5solid f1e6 "Partner Backend" as pa
+end
+
+activate u
+activate c
+
+expandable− General interaction
+c->>u:Display interaction
+u->>a:Websocket JSONRPC\nrequest
+activate a
+a->ba:Request
+deactivate a
+activate ba
+ba->pa:Request
+activate pa
+deactivate ba
+ba<--pa:
+deactivate pa
+activate ba
+a<--ba:
+deactivate ba
+activate a
+u<<--a:Websocket JSONRPC \nresponse
+c<<--u:UI changes
+deactivate a
+space
+activate a
+box over a:Async event
+u<<-a:Websocket JSONRPC \nevent
+deactivate a
+c<<-u:UI changes
+space
+end
+
+expandable− Buyout
+c->>u:Begin
+u->>a:Open inlet
+activate a
+u<<--a:Done
+deactivate a
+c<<--u:UI changes
+c->>u:Place valuable
+u->>a:Close inlet
+activate a
+u<<--a:Done
+deactivate a
+c<<--u:UI changes
+c->>u:Evaluate
+u->>a:Require evaluation
+activate a
+a->ba:New evaluation
+activate ba
+deactivate a
+ba->pa:New evaluation
+activate pa
+deactivate ba
+ba<-pa:Allowed
+deactivate pa
+activate ba
+a<-ba:Token
+deactivate ba
+activate a
+box over u:Waiting screen,\nads, etc.
+a->ba:Raw evaluation data
+activate ba
+deactivate a
+box over ba:Fineness evaluation
+a<--ba:Partially processed\nevaluation data
+activate a
+u<<--a:Event: fineness, weight
+deactivate a
+c<<--u:Optional UI changes
+ba->pa:Complete evaluation data
+activate pa
+deactivate ba
+ba<-pa:Accepted
+deactivate pa
+activate ba
+a<--ba:Evaluation is completed
+deactivate ba
+activate a
+u<<--a:Evaluation is completed
+deactivate a
+activate pa
+box over pa:Cost and conditions\nare estimated (async)
+u<-:3>pa:Get cost and conditions (custom method)
+activate a
+deactivate a
+deactivate pa
+c<<--u:Cost shown,\nidentification is required
+opt Customer identification via partner API
+u<-:3>pa:Custom methods
+end
+c->>u:Sell
+u->>a:Store request
+activate a
+a->ba:Store request
+activate ba
+deactivate a
+ba->pa:Store request
+deactivate ba
+activate pa
+ba<--pa:Allowed
+deactivate pa
+activate ba
+a<--ba:Token
+deactivate ba
+activate a
+u<<--a:Token
+deactivate a
+opt Payment via partner API
+u<-:3>pa:Custom methods
+end
+opt Optional custom hardware interaction (for instance, POS)
+u<-:3>pa:Initiate POS trx (custom method)
+activate pa
+c<<--u:UI changes
+u->>a:Read card via POS
+activate a
+u<<--a:Read result
+deactivate a
+c<<--u:UI changes
+u<-:3>pa:Check POS transaction (custom method)
+deactivate pa
+end
+u->>a:Complete or cancel\nstoring
+activate a
+a->ba:Complete or cancel\nstoring
+activate ba
+activate pa
+deactivate a
+ba->>pa:Cell occupied
+a<--ba:Done
+deactivate ba
+deactivate pa
+activate a
+a->a:Store or return \ncustomer valuable
+u<<--a:Done
+deactivate a
+c<<--u:UI changes
+end
+expandable− Shop / pawnshop
+c->>u:Begin
+u<-:3>pa:Required shop requests (custom methods):\nlist of items, images, etc.
+c<<--u:UI changes
+opt Payment via partner API
+u<-:3>pa:Custom methods
+end
+u->>a:Extraction request
+activate a
+a->ba:Extraction request
+activate ba
+deactivate a
+ba->pa:Extraction request
+activate pa
+deactivate ba
+ba<--pa:Allowed
+deactivate pa
+activate ba
+a<--ba:Token
+activate a
+deactivate ba
+a->a:Extraction from\nstorage
+a->ba:Extracted
+activate ba
+activate pa
+deactivate a
+ba->>pa:Cell released
+a<--ba:Done
+deactivate ba
+deactivate pa
+activate a
+u<<--a:Done
+deactivate a
+c<<--u:UI changes
+space
+end
+deactivate u
+destroy u
+deactivate c
+destroy c
+
+
+
+
