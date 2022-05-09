@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -54,32 +55,32 @@ type Moduler interface {
 
 // Communicates hardware and network services
 type Hardwarer interface {
-	OpenInlet() (err error)
-	CloseInlet() (err error)
-	CloseOutlet() (err error)
+	OpenInlet(ctx context.Context) (err error)
+	CloseInlet(ctx context.Context) (err error)
+	CloseOutlet(ctx context.Context) (err error)
 
-	NewEval() (evalID uint64, cell string, netFail, noRoom, hwFail bool, err error)
-	SpectralEval() (eval ImplSpectralData, netFail bool, rejected string, err error)
-	HydroEval() (eval ImplHydroData, netFail bool, rejected string, unstableScale bool, err error)
-	FinalizeEval() (fineness ImplFinenessData, netFail bool, rejected string, err error)
-	ReturnAfterSpectrumEval(customerChoice bool) (err error)
-	ReturnAfterHydroEval(customerChoice bool) (err error)
-	StoreAfterHydroEval() (cell string, err error)
+	NewEval(ctx context.Context) (evalID uint64, cell string, netFail, noRoom, hwFail bool, err error)
+	SpectralEval(ctx context.Context) (eval ImplSpectralData, netFail bool, rejected string, err error)
+	HydroEval(ctx context.Context) (eval ImplHydroData, netFail bool, rejected string, unstableScale bool, err error)
+	FinalizeEval(ctx context.Context) (fineness ImplFinenessData, netFail bool, rejected string, err error)
+	ReturnAfterSpectrumEval(ctx context.Context, customerChoice bool) (err error)
+	ReturnAfterHydroEval(ctx context.Context, customerChoice bool) (err error)
+	StoreAfterHydroEval(ctx context.Context) (cell string, err error)
 
-	ExtractCellFromStorage(cell string) (err error)
-	StorageOccupyCell(cell, domain, tx string) (netFail, forbidden bool, err error)
-	StorageReleaseCell(cell, domain, tx string) (netFail, forbidden bool, err error)
+	ExtractCellFromStorage(ctx context.Context, cell string) (err error)
+	StorageOccupyCell(ctx context.Context, cell, domain, tx string) (netFail, forbidden bool, err error)
+	StorageReleaseCell(ctx context.Context, cell, domain, tx string) (netFail, forbidden bool, err error)
 
-	IntegrationUIMethod(method string, body map[string]interface{}) (httpStatus int, response map[string]interface{}, err error)
+	IntegrationUIMethod(ctx context.Context, method string, body map[string]interface{}) (httpStatus int, response map[string]interface{}, err error)
 
-	OptionalHardwareHealth() (health map[string]bool, err error)
-	OptionalHardwareMethod(module, method string, request interface{}) (result interface{}, err error)
+	OptionalHardwareHealth(ctx context.Context) (health map[string]bool, err error)
+	OptionalHardwareMethod(ctx context.Context, module, method string, request interface{}) (result interface{}, err error)
 
-	UploadFrontalCameraPhotoForEval()
+	UploadFrontalCameraPhotoForEval(ctx context.Context)
 
-	InternetConnectivity() (ok bool)
-	HasStorage() (ok bool)
-	HasPositionalStorage() (ok bool)
+	InternetConnectivity(ctx context.Context) (ok bool)
+	HasStorage(ctx context.Context) (ok bool)
+	HasPositionalStorage(ctx context.Context) (ok bool)
 }
 
 type ImplSpectralData struct {
@@ -150,7 +151,7 @@ func (a *Impl) brokenProxy(err error) error {
 ////// INLET/OUTLET WINDOW /////
 
 // Requires hardware to open inlet window. Should be called to receive a customer item before evaluation.
-func (a *Impl) InletOpen() (err error) {
+func (a *Impl) InletOpen(ctx context.Context) (err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -163,7 +164,7 @@ func (a *Impl) InletOpen() (err error) {
 		err = fmt.Errorf("invalid state: first start a new evaluation")
 		return
 	}
-	if err = a.hw.OpenInlet(); err != nil {
+	if err = a.hw.OpenInlet(ctx); err != nil {
 		return a.brokenProxy(err)
 	}
 	a.evalState = evalInletOpened
@@ -171,7 +172,7 @@ func (a *Impl) InletOpen() (err error) {
 }
 
 // Requires hardware to close inlet window. Should be called right before evaluation launch.
-func (a *Impl) InletClose() (err error) {
+func (a *Impl) InletClose(ctx context.Context) (err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -184,7 +185,7 @@ func (a *Impl) InletClose() (err error) {
 		err = fmt.Errorf("invalid state: first open inlet")
 		return
 	}
-	if err = a.hw.CloseInlet(); err != nil {
+	if err = a.hw.CloseInlet(ctx); err != nil {
 		return a.brokenProxy(err)
 	}
 	a.evalState = evalInletClosed
@@ -192,7 +193,7 @@ func (a *Impl) InletClose() (err error) {
 }
 
 // Requires hardware to close outlet window. Should be called manually after customer item return or storage item extraction.
-func (a *Impl) OutletClose() (err error) {
+func (a *Impl) OutletClose(ctx context.Context) (err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -205,7 +206,7 @@ func (a *Impl) OutletClose() (err error) {
 		err = fmt.Errorf("invalid state: outlet is not opened")
 		return
 	}
-	if err = a.hw.CloseOutlet(); err != nil {
+	if err = a.hw.CloseOutlet(ctx); err != nil {
 		return a.brokenProxy(err)
 	}
 	a.evalState = evalInitial
@@ -215,7 +216,7 @@ func (a *Impl) OutletClose() (err error) {
 ///// EVALUATION //////
 
 // Prepares a new evaluation operation: check hardware, notify backend server, etc.
-func (a *Impl) EvalNew() (res EvalNewResult, err error) {
+func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -229,14 +230,14 @@ func (a *Impl) EvalNew() (res EvalNewResult, err error) {
 		return
 	}
 
-	evalID, storageCell, netFail, failNoRoom, failHW, err := a.hw.NewEval()
+	evalID, storageCell, netFail, failNoRoom, failHW, err := a.hw.NewEval(ctx)
 	if err != nil {
 		err = a.brokenProxy(err)
 		return
 	}
 
 	// customer photo
-	a.hw.UploadFrontalCameraPhotoForEval()
+	a.hw.UploadFrontalCameraPhotoForEval(ctx)
 
 	switch {
 	case netFail, failNoRoom, failHW:
@@ -262,7 +263,7 @@ func (a *Impl) EvalNew() (res EvalNewResult, err error) {
 
 // Starts a spectral evaluation of the item. Should be called right after `eval.new`.
 // On successful spectral evaluation the item might be returned back to customer with `eval.return`, otherwise the evaluation should be continued with `eval.hydro`.
-func (a *Impl) EvalSpectrum() (res EvalSpectrumResult, err error) {
+func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -276,7 +277,7 @@ func (a *Impl) EvalSpectrum() (res EvalSpectrumResult, err error) {
 		return
 	}
 
-	eval, netFail, rejection, err := a.hw.SpectralEval()
+	eval, netFail, rejection, err := a.hw.SpectralEval(ctx)
 	if err != nil {
 		err = a.brokenProxy(err)
 		return
@@ -310,7 +311,7 @@ func (a *Impl) EvalSpectrum() (res EvalSpectrumResult, err error) {
 
 // Starts a hydrostatic evaluation of the item. Should be called right after `eval.spectrum`.
 // On successful hydrostatic evaluation the item might be returned back to customer with `eval.return`.
-func (a *Impl) EvalHydro() (res EvalHydroResult, err error) {
+func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -324,7 +325,7 @@ func (a *Impl) EvalHydro() (res EvalHydroResult, err error) {
 		return
 	}
 
-	eval, netFail, rejection, unstableScale, err := a.hw.HydroEval()
+	eval, netFail, rejection, unstableScale, err := a.hw.HydroEval(ctx)
 	if err != nil {
 		err = a.brokenProxy(err)
 		return
@@ -343,7 +344,7 @@ func (a *Impl) EvalHydro() (res EvalHydroResult, err error) {
 		}
 	default:
 		// call backend to finalize eval
-		fineness, netFail, rejection, xerr := a.hw.FinalizeEval()
+		fineness, netFail, rejection, xerr := a.hw.FinalizeEval(ctx)
 		if xerr != nil {
 			err = a.brokenProxy(xerr)
 			return
@@ -380,7 +381,7 @@ func (a *Impl) EvalHydro() (res EvalHydroResult, err error) {
 
 // Starts a returning process of the item. Should be called after spectral/hydrostatic evaluation.
 // On successful returning outlet window should be closed manually: customer choice (preferred) or a timeout.
-func (a *Impl) EvalReturn() (err error) {
+func (a *Impl) EvalReturn(ctx context.Context) (err error) {
 	if err = a.check(); err != nil {
 		return
 	}
@@ -391,13 +392,13 @@ func (a *Impl) EvalReturn() (err error) {
 
 	switch a.evalState {
 	case evalSpectrumFinishedSuccess, evalSpectrumFinishedRejection:
-		err = a.hw.ReturnAfterSpectrumEval(a.evalState == evalSpectrumFinishedSuccess)
+		err = a.hw.ReturnAfterSpectrumEval(ctx, a.evalState == evalSpectrumFinishedSuccess)
 		if err != nil {
 			return a.brokenProxy(err)
 		}
 		a.evalState = evalOutletOpened
 	case evalHydroFinishedSuccess, evalHydroFinishedRejection:
-		err = a.hw.ReturnAfterHydroEval(a.evalState == evalHydroFinishedSuccess)
+		err = a.hw.ReturnAfterHydroEval(ctx, a.evalState == evalHydroFinishedSuccess)
 		if err != nil {
 			return a.brokenProxy(err)
 		}
@@ -410,7 +411,7 @@ func (a *Impl) EvalReturn() (err error) {
 }
 
 // Requires hardware to transfer successfully evaluated item into the internal storage.
-func (a *Impl) EvalStore(req EvalStoreRequest) (res EvalStoreResult, err error) {
+func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalStoreResult, err error) {
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
@@ -435,7 +436,7 @@ func (a *Impl) EvalStore(req EvalStoreRequest) (res EvalStoreResult, err error) 
 		forbidden bool
 	)
 	for i := 0; i < 3; i++ {
-		netFail, forbidden, err = a.hw.StorageOccupyCell(a.evalCell, string(req.Domain), tx)
+		netFail, forbidden, err = a.hw.StorageOccupyCell(ctx, a.evalCell, string(req.Domain), tx)
 		if err != nil {
 			err = a.brokenProxy(err)
 			return
@@ -462,7 +463,7 @@ func (a *Impl) EvalStore(req EvalStoreRequest) (res EvalStoreResult, err error) 
 	default:
 	}
 
-	cell, err := a.hw.StoreAfterHydroEval()
+	cell, err := a.hw.StoreAfterHydroEval(ctx)
 	if err != nil {
 		_ = a.brokenProxy(err)
 	}
@@ -481,7 +482,7 @@ func (a *Impl) EvalStore(req EvalStoreRequest) (res EvalStoreResult, err error) 
 
 // Requires hardware to extract an item from the specified storage cell and bring it to the outlet window.
 // On successful extraction the outlet window should be closed manually: customer choice (preferred) or a timeout.
-func (a *Impl) StorageExtract(req StorageExtractRequest) (res StorageExtractResult, err error) {
+func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (res StorageExtractResult, err error) {
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
@@ -506,7 +507,7 @@ func (a *Impl) StorageExtract(req StorageExtractRequest) (res StorageExtractResu
 		forbidden bool
 	)
 	for i := 0; i < 3; i++ {
-		netFail, forbidden, err = a.hw.StorageReleaseCell(req.Cell, string(req.Domain), tx)
+		netFail, forbidden, err = a.hw.StorageReleaseCell(ctx, req.Cell, string(req.Domain), tx)
 		if err != nil {
 			err = a.brokenProxy(err)
 			return
@@ -533,7 +534,7 @@ func (a *Impl) StorageExtract(req StorageExtractRequest) (res StorageExtractResu
 	default:
 	}
 
-	if err = a.hw.ExtractCellFromStorage(req.Cell); err != nil {
+	if err = a.hw.ExtractCellFromStorage(ctx, req.Cell); err != nil {
 		_ = a.brokenProxy(err)
 	}
 
@@ -549,29 +550,29 @@ func (a *Impl) StorageExtract(req StorageExtractRequest) (res StorageExtractResu
 ////// OTHER //////
 
 // Checks the internet connection and custom hardware modules are available.
-func (a *Impl) Status() (res StatusResult, err error) {
-	sh, err := a.hw.OptionalHardwareHealth()
+func (a *Impl) Status(ctx context.Context) (res StatusResult, err error) {
+	sh, err := a.hw.OptionalHardwareHealth(ctx)
 	if err != nil {
 		return
 	}
 	res = StatusResult{
 		Operational:        a.mod.Operational(),
-		InternetConnection: a.hw.InternetConnectivity(),
+		InternetConnection: a.hw.InternetConnectivity(ctx),
 		OptionalHardware:   sh,
 		Features: StatusResultFeatures{
-			Storage:           a.hw.HasStorage(),
-			PositionalStorage: a.hw.HasPositionalStorage(),
+			Storage:           a.hw.HasStorage(ctx),
+			PositionalStorage: a.hw.HasPositionalStorage(ctx),
 		},
 	}
 	return
 }
 
 // Performs a call to a named backend method defined in Goldex dashboard.
-func (a *Impl) Goldex(req GoldexRequest) (res GoldexResult, err error) {
+func (a *Impl) Goldex(ctx context.Context, req GoldexRequest) (res GoldexResult, err error) {
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
-	httpStatus, response, err := a.hw.IntegrationUIMethod(req.Method, req.Body)
+	httpStatus, response, err := a.hw.IntegrationUIMethod(ctx, req.Method, req.Body)
 	if err != nil {
 		return
 	}
@@ -583,11 +584,11 @@ func (a *Impl) Goldex(req GoldexRequest) (res GoldexResult, err error) {
 }
 
 // Call an RPC method of the optional hardware installed within the terminal.
-func (a *Impl) Hardware(req HardwareRequest) (res HardwareResult, err error) {
+func (a *Impl) Hardware(ctx context.Context, req HardwareRequest) (res HardwareResult, err error) {
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
-	kv, err := a.hw.OptionalHardwareMethod(req.Name, req.Method, req.Params)
+	kv, err := a.hw.OptionalHardwareMethod(ctx, req.Name, req.Method, req.Params)
 	if err != nil {
 		return
 	}

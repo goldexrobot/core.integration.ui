@@ -36,6 +36,8 @@
 // swagger:meta
 package api
 
+import "context"
+
 // JSONRPC API
 //
 type API interface {
@@ -59,7 +61,7 @@ type API interface {
 	//     description: No payload
 	//   default:
 	//     description: JSONRPC error
-	InletOpen() (err error)
+	InletOpen(ctx context.Context) (err error)
 
 	// swagger:operation POST /inlet.close InletClose
 	//
@@ -78,7 +80,7 @@ type API interface {
 	//     description: No payload
 	//   default:
 	//     description: JSONRPC error
-	InletClose() (err error)
+	InletClose(ctx context.Context) (err error)
 
 	// swagger:operation POST /outlet.close OutletClose
 	//
@@ -97,7 +99,7 @@ type API interface {
 	//     description: No payload
 	//   default:
 	//     description: JSONRPC error
-	OutletClose() (err error)
+	OutletClose(ctx context.Context) (err error)
 
 	///// EVALUATION //////
 
@@ -120,7 +122,7 @@ type API interface {
 	//       $ref: "#/definitions/EvalNewResult"
 	//   default:
 	//     description: JSONRPC error
-	EvalNew() (res EvalNewResult, err error)
+	EvalNew(ctx context.Context) (res EvalNewResult, err error)
 
 	// swagger:operation POST /eval.spectrum EvalSpectrum
 	//
@@ -142,7 +144,7 @@ type API interface {
 	//       $ref: "#/definitions/EvalSpectrumResult"
 	//   default:
 	//     description: JSONRPC error
-	EvalSpectrum() (res EvalSpectrumResult, err error)
+	EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err error)
 
 	// swagger:operation POST /eval.hydro EvalHydro
 	//
@@ -164,7 +166,7 @@ type API interface {
 	//       $ref: "#/definitions/EvalHydroResult"
 	//   default:
 	//     description: JSONRPC error
-	EvalHydro() (res EvalHydroResult, err error)
+	EvalHydro(ctx context.Context) (res EvalHydroResult, err error)
 
 	// swagger:operation POST /eval.return EvalReturn
 	//
@@ -184,7 +186,7 @@ type API interface {
 	//     description: No payload
 	//   default:
 	//     description: JSONRPC error
-	EvalReturn() (err error)
+	EvalReturn(ctx context.Context) (err error)
 
 	// swagger:operation POST /eval.store EvalStore
 	//
@@ -210,7 +212,7 @@ type API interface {
 	//       $ref: "#/definitions/EvalStoreResult"
 	//   default:
 	//     description: JSONRPC error
-	EvalStore(req EvalStoreRequest) (res EvalStoreResult, err error)
+	EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalStoreResult, err error)
 
 	////// STORAGE //////
 
@@ -239,7 +241,7 @@ type API interface {
 	//       "$ref": "#/definitions/StorageExtractResult"
 	//   default:
 	//     description: JSONRPC error
-	StorageExtract(req StorageExtractRequest) (res StorageExtractResult, err error)
+	StorageExtract(ctx context.Context, req StorageExtractRequest) (res StorageExtractResult, err error)
 
 	////// OTHER //////
 
@@ -262,7 +264,7 @@ type API interface {
 	//       "$ref": "#/definitions/StatusResult"
 	//   default:
 	//     description: JSONRPC error
-	Status() (res StatusResult, err error)
+	Status(ctx context.Context) (res StatusResult, err error)
 
 	// swagger:operation POST /goldex Goldex
 	//
@@ -288,7 +290,7 @@ type API interface {
 	//       $ref: "#/definitions/GoldexResult"
 	//   default:
 	//     description: JSONRPC error
-	Goldex(req GoldexRequest) (res GoldexResult, err error)
+	Goldex(ctx context.Context, req GoldexRequest) (res GoldexResult, err error)
 
 	// swagger:operation POST /hardware Hardware
 	//
@@ -314,7 +316,7 @@ type API interface {
 	//       $ref: "#/definitions/HardwareResult"
 	//   default:
 	//     description: JSONRPC error
-	Hardware(req HardwareRequest) (res HardwareResult, err error)
+	Hardware(ctx context.Context, req HardwareRequest) (res HardwareResult, err error)
 
 	////// EVENTS //////
 
