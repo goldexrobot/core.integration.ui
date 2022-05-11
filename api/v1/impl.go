@@ -45,7 +45,7 @@ const (
 	evalOutletOpened
 )
 
-// Provides interaction with parent module
+// Provides interaction with parent software module
 type Moduler interface {
 	// Checks parent module is operational
 	Operational() (ok bool)
@@ -71,7 +71,7 @@ type Hardwarer interface {
 	StorageOccupyCell(ctx context.Context, cell, domain, tx string) (netFail, forbidden bool, err error)
 	StorageReleaseCell(ctx context.Context, cell, domain, tx string) (netFail, forbidden bool, err error)
 
-	IntegrationUIMethod(ctx context.Context, method string, body map[string]interface{}) (httpStatus int, response map[string]interface{}, err error)
+	ProxyBusinessRequest(ctx context.Context, endpoint string, body map[string]interface{}) (httpStatus int, response map[string]interface{}, err error)
 
 	OptionalHardwareHealth(ctx context.Context) (health map[string]bool, err error)
 	OptionalHardwareMethod(ctx context.Context, module, method string, request interface{}) (result interface{}, err error)
@@ -142,7 +142,7 @@ func (a *Impl) unlock() {
 	a.mu.Unlock()
 }
 
-func (a *Impl) brokenProxy(err error) error {
+func (a *Impl) setModuleBroken(err error) error {
 	a.logger.WithError(err).Errorf("Fatal hardware error is occurred")
 	a.mod.Broken(err)
 	return fmt.Errorf("terminal is broken")
@@ -165,7 +165,7 @@ func (a *Impl) InletOpen(ctx context.Context) (err error) {
 		return
 	}
 	if err = a.hw.OpenInlet(ctx); err != nil {
-		return a.brokenProxy(err)
+		return a.setModuleBroken(err)
 	}
 	a.evalState = evalInletOpened
 	return
@@ -186,7 +186,7 @@ func (a *Impl) InletClose(ctx context.Context) (err error) {
 		return
 	}
 	if err = a.hw.CloseInlet(ctx); err != nil {
-		return a.brokenProxy(err)
+		return a.setModuleBroken(err)
 	}
 	a.evalState = evalInletClosed
 	return
@@ -207,7 +207,7 @@ func (a *Impl) OutletClose(ctx context.Context) (err error) {
 		return
 	}
 	if err = a.hw.CloseOutlet(ctx); err != nil {
-		return a.brokenProxy(err)
+		return a.setModuleBroken(err)
 	}
 	a.evalState = evalInitial
 	return
@@ -232,7 +232,7 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 
 	evalID, storageCell, netFail, failNoRoom, failHW, err := a.hw.NewEval(ctx)
 	if err != nil {
-		err = a.brokenProxy(err)
+		err = a.setModuleBroken(err)
 		return
 	}
 
@@ -279,7 +279,7 @@ func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err er
 
 	eval, netFail, rejection, err := a.hw.SpectralEval(ctx)
 	if err != nil {
-		err = a.brokenProxy(err)
+		err = a.setModuleBroken(err)
 		return
 	}
 
@@ -327,7 +327,7 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 
 	eval, netFail, rejection, unstableScale, err := a.hw.HydroEval(ctx)
 	if err != nil {
-		err = a.brokenProxy(err)
+		err = a.setModuleBroken(err)
 		return
 	}
 
@@ -346,7 +346,7 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 		// call backend to finalize eval
 		fineness, netFail, rejection, xerr := a.hw.FinalizeEval(ctx)
 		if xerr != nil {
-			err = a.brokenProxy(xerr)
+			err = a.setModuleBroken(xerr)
 			return
 		}
 		switch {
@@ -394,13 +394,13 @@ func (a *Impl) EvalReturn(ctx context.Context) (err error) {
 	case evalSpectrumFinishedSuccess, evalSpectrumFinishedRejection:
 		err = a.hw.ReturnAfterSpectrumEval(ctx, a.evalState == evalSpectrumFinishedSuccess)
 		if err != nil {
-			return a.brokenProxy(err)
+			return a.setModuleBroken(err)
 		}
 		a.evalState = evalOutletOpened
 	case evalHydroFinishedSuccess, evalHydroFinishedRejection:
 		err = a.hw.ReturnAfterHydroEval(ctx, a.evalState == evalHydroFinishedSuccess)
 		if err != nil {
-			return a.brokenProxy(err)
+			return a.setModuleBroken(err)
 		}
 		a.evalState = evalOutletOpened
 	default:
@@ -438,7 +438,7 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 	for i := 0; i < 3; i++ {
 		netFail, forbidden, err = a.hw.StorageOccupyCell(ctx, a.evalCell, string(req.Domain), tx)
 		if err != nil {
-			err = a.brokenProxy(err)
+			err = a.setModuleBroken(err)
 			return
 		}
 		if forbidden {
@@ -465,7 +465,7 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 
 	cell, err := a.hw.StoreAfterHydroEval(ctx)
 	if err != nil {
-		_ = a.brokenProxy(err)
+		_ = a.setModuleBroken(err)
 	}
 
 	a.evalState = evalInitial
@@ -509,7 +509,7 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 	for i := 0; i < 3; i++ {
 		netFail, forbidden, err = a.hw.StorageReleaseCell(ctx, req.Cell, string(req.Domain), tx)
 		if err != nil {
-			err = a.brokenProxy(err)
+			err = a.setModuleBroken(err)
 			return
 		}
 		if forbidden {
@@ -535,7 +535,7 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 	}
 
 	if err = a.hw.ExtractCellFromStorage(ctx, req.Cell); err != nil {
-		_ = a.brokenProxy(err)
+		_ = a.setModuleBroken(err)
 	}
 
 	a.evalState = evalOutletOpened
@@ -568,15 +568,15 @@ func (a *Impl) Status(ctx context.Context) (res StatusResult, err error) {
 }
 
 // Performs a call to a named backend method defined in Goldex dashboard.
-func (a *Impl) Goldex(ctx context.Context, req GoldexRequest) (res GoldexResult, err error) {
+func (a *Impl) Proxy(ctx context.Context, req ProxyRequest) (res ProxyResult, err error) {
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
-	httpStatus, response, err := a.hw.IntegrationUIMethod(ctx, req.Method, req.Body)
+	httpStatus, response, err := a.hw.ProxyBusinessRequest(ctx, req.Endpoint, req.Body)
 	if err != nil {
 		return
 	}
-	res = GoldexResult{
+	res = ProxyResult{
 		HttpStatus: httpStatus,
 		Body:       response,
 	}

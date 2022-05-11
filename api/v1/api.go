@@ -266,11 +266,11 @@ type API interface {
 	//     description: JSONRPC error
 	Status(ctx context.Context) (res StatusResult, err error)
 
-	// swagger:operation POST /goldex Goldex
+	// swagger:operation POST /proxy Proxy
 	//
-	// Call to a named Goldex backend method.
+	// Send a request to the named endpoint of the business backend.
 	//
-	// Performs a call to a named backend method defined in Goldex dashboard.
+	// Requires Goldex backend to sign and send an HTTP POST request to the business backend. Endpoint address and it's name should be defined in Goldex dashboard.
 	// ---
 	// consumes:
 	// - application/json
@@ -282,15 +282,15 @@ type API interface {
 	//   - in: body
 	//     description: JSONRPC params
 	//     schema:
-	//       $ref: "#/definitions/GoldexRequest"
+	//       $ref: "#/definitions/ProxyRequest"
 	// responses:
 	//   x-jsonrpc-success:
 	//     description: Result
 	//     schema:
-	//       $ref: "#/definitions/GoldexResult"
+	//       $ref: "#/definitions/ProxyResult"
 	//   default:
 	//     description: JSONRPC error
-	Goldex(ctx context.Context, req GoldexRequest) (res GoldexResult, err error)
+	Proxy(ctx context.Context, req ProxyRequest) (res ProxyResult, err error)
 
 	// swagger:operation POST /hardware Hardware
 	//
@@ -580,11 +580,11 @@ type StatusResultFeatures struct {
 }
 
 // swagger:model
-type GoldexRequest struct {
-	// predefined method name
+type ProxyRequest struct {
+	// predefined endpoint name
 	//
 	// example: my-method
-	Method string `json:"method" validate:"required,max=128"`
+	Endpoint string `json:"endpoint" validate:"required,max=128"`
 
 	// request key-value
 	//
@@ -593,7 +593,7 @@ type GoldexRequest struct {
 }
 
 // swagger:model
-type GoldexResult struct {
+type ProxyResult struct {
 	// http status
 	//
 	// example: 200
