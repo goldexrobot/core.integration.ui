@@ -1,5 +1,12 @@
-all: swagger-api
+all: swagger oapi-codegen-apiv1
 	@:
 
-swagger-api:
-	@MSYS_NO_PATHCONV=1 docker run --rm -v $(shell pwd):/goldex:rw -it quay.io/goswagger/swagger generate spec -m -w /goldex/api/v1 -o /goldex/docs/v1/api.swagger.json 
+tools:
+	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+	
+swagger:
+	cp ./api/v1/openapi.yaml ./docs/api-v1.yaml
+
+oapi-codegen-apiv1:
+	cd ./pkg/v1 && \
+		oapi-codegen --config ./gen-models.yaml ./../../api/v1/openapi.yaml
