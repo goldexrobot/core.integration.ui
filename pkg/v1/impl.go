@@ -78,6 +78,7 @@ type Hardwarer interface {
 
 	UploadFrontalCameraPhotoForEval(ctx context.Context)
 
+	BotIdentity(ctx context.Context) (projectID, botID uint64, err error)
 	InternetConnectivity(ctx context.Context) (ok bool)
 	HasStorage(ctx context.Context) (ok bool)
 	HasPositionalStorage(ctx context.Context) (ok bool)
@@ -526,14 +527,22 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 
 // Checks the internet connection and custom hardware modules are available.
 func (a *Impl) Status(ctx context.Context) (res StatusResult, err error) {
-	sh, err := a.hw.OptionalHardwareHealth(ctx)
+	oh, err := a.hw.OptionalHardwareHealth(ctx)
 	if err != nil {
 		return
 	}
+	
+	projectID, botID, err := a.hw.BotIdentity(ctx)
+	if err != nil {
+		return
+	}
+
 	res = StatusResult{
+		ProjectId:          projectID,
+		BotId:              botID,
 		Operational:        a.mod.Operational(),
 		InternetConnection: a.hw.InternetConnectivity(ctx),
-		OptionalHardware:   sh,
+		OptionalHardware:   oh,
 		Features: StatusResultFeatures{
 			Storage:           a.hw.HasStorage(ctx),
 			PositionalStorage: a.hw.HasPositionalStorage(ctx),
