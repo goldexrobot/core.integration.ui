@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   title: UI API
-  version: 1.0.1
+  version: 1.0.2
   description: |-
     Goldex Robot terminal exposes [JSONRPC 2](https://www.jsonrpc.org/specification) API over [Websocket](https://en.wikipedia.org/wiki/WebSocket) connection at `localhost:80/ws`. Websocket messages are textual, not binary.
     
@@ -338,9 +338,8 @@ components:
       discriminator:
         propertyName: success
         mapping:
-          true: '#/components/schemas/EvalNewResultSuccess'
-          false: '#/components/schemas/EvalNewResultFailure'
-        x-go-type: bool
+          'true': '#/components/schemas/EvalNewResultSuccess'
+          'false': '#/components/schemas/EvalNewResultFailure'
       
     EvalNewResultSuccess:
       type: object
@@ -350,7 +349,7 @@ components:
         - storage_cell
       properties:
         'success':
-          type: boolean
+          type: string
         'eval_id':
           description: Evaluation ID
           type: integer
@@ -366,7 +365,7 @@ components:
         - failure
       properties:
         'success':
-          type: boolean
+          type: string
         'failure':
           type: string
           enum:
@@ -385,8 +384,8 @@ components:
       discriminator:
         propertyName: success
         mapping:
-          true: '#/components/schemas/EvalSpectrumResultSuccess'
-          false: '#/components/schemas/EvalSpectrumResultFailure'
+          'true': '#/components/schemas/EvalSpectrumResultSuccess'
+          'false': '#/components/schemas/EvalSpectrumResultFailure'
     
     EvalSpectrumResultSuccess:
       type: object
@@ -399,7 +398,7 @@ components:
         - spectrum
       properties:
         'success':
-          type: boolean
+          type: string
         'alloy':
           description: Valuable metal
           type: string
@@ -438,7 +437,7 @@ components:
         - reason
       properties:
         'success':
-          type: boolean
+          type: string
         'failure':
           type: string
           enum:
@@ -458,8 +457,8 @@ components:
       discriminator:
         propertyName: success
         mapping:
-          true: '#/components/schemas/EvalHydroResultSuccess'
-          false: '#/components/schemas/EvalHydroResultFailure'
+          'true': '#/components/schemas/EvalHydroResultSuccess'
+          'false': '#/components/schemas/EvalHydroResultFailure'
     
     EvalHydroResultSuccess:
       type: object
@@ -475,7 +474,7 @@ components:
         - weight
       properties:
         'success':
-          type: boolean
+          type: string
         'alloy':
           description: Valuable metal
           type: string
@@ -523,7 +522,7 @@ components:
         - reason
       properties:
         'success':
-          type: boolean
+          type: string
         'failure':
           type: string
           enum:
@@ -558,8 +557,8 @@ components:
       discriminator:
         propertyName: success
         mapping:
-          true: '#/components/schemas/EvalStoreResultSuccess'
-          false: '#/components/schemas/EvalStoreResultFailure'
+          'true': '#/components/schemas/EvalStoreResultSuccess'
+          'false': '#/components/schemas/EvalStoreResultFailure'
     
     EvalStoreResultSuccess:
       type: object
@@ -569,7 +568,7 @@ components:
         - transaction
       properties:
         'success':
-          type: boolean
+          type: string
         'cell':
           $ref: '#/components/schemas/StorageCell'
         'transaction':
@@ -582,7 +581,7 @@ components:
         - failure
       properties:
         'success':
-          type: boolean
+          type: string
         'failure':
           type: string
           enum:
@@ -775,8 +774,8 @@ components:
       discriminator:
         propertyName: success
         mapping:
-          true: '#/components/schemas/StorageExtractResultSuccess'
-          false: '#/components/schemas/StorageExtractResultFailure'
+          'true': '#/components/schemas/StorageExtractResultSuccess'
+          'false': '#/components/schemas/StorageExtractResultFailure'
     
     StorageExtractResultSuccess:
       type: object
@@ -785,7 +784,7 @@ components:
         - transaction
       properties:
         'success':
-          type: boolean
+          type: string
         'transaction':
           $ref: '#/components/schemas/StorageCellTransaction'
     
@@ -796,7 +795,7 @@ components:
         - failure
       properties:
         'success':
-          type: boolean
+          type: string
         'failure':
           type: string
           enum:

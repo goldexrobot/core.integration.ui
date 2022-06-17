@@ -264,7 +264,6 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 	res.FromEvalNewResultSuccess(EvalNewResultSuccess{
 		EvalId:      evalID,
 		StorageCell: storageCell,
-		Success:     true,
 	})
 	return
 }
@@ -308,7 +307,6 @@ func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err er
 
 	a.evalState = evalSpectrumFinishedSuccess
 	res.FromEvalSpectrumResultSuccess(EvalSpectrumResultSuccess{
-		Success:    true,
 		Alloy:      eval.Alloy,
 		Purity:     eval.Purity,
 		Millesimal: int64(eval.Millesimal),
@@ -385,7 +383,6 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 	a.evalState = evalHydroFinishedSuccess
 
 	res.FromEvalHydroResultSuccess(EvalHydroResultSuccess{
-		Success:    true,
 		Alloy:      fineness.Alloy,
 		Purity:     fineness.Purity,
 		Millesimal: int64(fineness.Millesimal),
@@ -477,7 +474,6 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 	a.evalState = evalInitial
 
 	res.FromEvalStoreResultSuccess(EvalStoreResultSuccess{
-		Success:     true,
 		Cell:        cell,
 		Transaction: tx,
 	})
@@ -534,7 +530,6 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 	a.evalState = evalOutletOpened
 
 	res.FromStorageExtractResultSuccess(StorageExtractResultSuccess{
-		Success:     true,
 		Transaction: tx,
 	})
 	return

@@ -5,6 +5,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 )
 
 // Defines values for EvalHydroResultFailureFailure.
@@ -71,7 +72,7 @@ type EvalHydroResultFailure struct {
 
 	// Reason why the item is rejected by the Goldex. It's non-empty if evaluation failure is `item_rejected`
 	Reason  ItemRejectionReason `json:"reason"`
-	Success bool                `json:"success"`
+	Success string              `json:"success"`
 }
 
 // EvalHydroResultFailureFailure defines model for EvalHydroResultFailure.Failure.
@@ -95,8 +96,8 @@ type EvalHydroResultSuccess struct {
 	Purity float64 `json:"purity"`
 
 	// Automatic decision result
-	Risky   bool `json:"risky"`
-	Success bool `json:"success"`
+	Risky   bool   `json:"risky"`
+	Success string `json:"success"`
 
 	// Warnings that should help with decision. For instance, there could be a tungsten covered with gold.
 	Warnings []string `json:"warnings"`
@@ -113,7 +114,7 @@ type EvalNewResult struct {
 // EvalNewResultFailure defines model for EvalNewResultFailure.
 type EvalNewResultFailure struct {
 	Failure EvalNewResultFailureFailure `json:"failure"`
-	Success bool                        `json:"success"`
+	Success string                      `json:"success"`
 }
 
 // EvalNewResultFailureFailure defines model for EvalNewResultFailure.Failure.
@@ -126,7 +127,7 @@ type EvalNewResultSuccess struct {
 
 	// Storage cell address
 	StorageCell StorageCell `json:"storage_cell" validate:"required,alphanum,min=2,max=4"`
-	Success     bool        `json:"success"`
+	Success     string      `json:"success"`
 }
 
 // EvalSpectrumResult defines model for EvalSpectrumResult.
@@ -140,7 +141,7 @@ type EvalSpectrumResultFailure struct {
 
 	// Reason why the item is rejected by the Goldex. It's non-empty if evaluation failure is `item_rejected`
 	Reason  ItemRejectionReason `json:"reason"`
-	Success bool                `json:"success"`
+	Success string              `json:"success"`
 }
 
 // EvalSpectrumResultFailureFailure defines model for EvalSpectrumResultFailure.Failure.
@@ -162,7 +163,7 @@ type EvalSpectrumResultSuccess struct {
 
 	// Spectrum data
 	Spectrum map[string]float64 `json:"spectrum"`
-	Success  bool               `json:"success"`
+	Success  string             `json:"success"`
 }
 
 // EvalStoreRequest defines model for EvalStoreRequest.
@@ -182,7 +183,7 @@ type EvalStoreResult struct {
 // EvalStoreResultFailure defines model for EvalStoreResultFailure.
 type EvalStoreResultFailure struct {
 	Failure EvalStoreResultFailureFailure `json:"failure"`
-	Success bool                          `json:"success"`
+	Success string                        `json:"success"`
 }
 
 // EvalStoreResultFailureFailure defines model for EvalStoreResultFailure.Failure.
@@ -192,7 +193,7 @@ type EvalStoreResultFailureFailure string
 type EvalStoreResultSuccess struct {
 	// Storage cell address
 	Cell    StorageCell `json:"cell" validate:"required,alphanum,min=2,max=4"`
-	Success bool        `json:"success"`
+	Success string      `json:"success"`
 
 	// Unique storage cell operation ID
 	Transaction StorageCellTransaction `json:"transaction"`
@@ -300,7 +301,7 @@ type StorageExtractResult struct {
 // StorageExtractResultFailure defines model for StorageExtractResultFailure.
 type StorageExtractResultFailure struct {
 	Failure StorageExtractResultFailureFailure `json:"failure"`
-	Success bool                               `json:"success"`
+	Success string                             `json:"success"`
 }
 
 // StorageExtractResultFailureFailure defines model for StorageExtractResultFailure.Failure.
@@ -308,7 +309,7 @@ type StorageExtractResultFailureFailure string
 
 // StorageExtractResultSuccess defines model for StorageExtractResultSuccess.
 type StorageExtractResultSuccess struct {
-	Success bool `json:"success"`
+	Success string `json:"success"`
 
 	// Unique storage cell operation ID
 	Transaction StorageCellTransaction `json:"transaction"`
@@ -390,7 +391,7 @@ func (t EvalHydroResult) AsEvalHydroResultSuccess() (EvalHydroResultSuccess, err
 }
 
 func (t *EvalHydroResult) FromEvalHydroResultSuccess(v EvalHydroResultSuccess) error {
-	v.Success = true
+	v.Success = "true"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -403,15 +404,15 @@ func (t EvalHydroResult) AsEvalHydroResultFailure() (EvalHydroResultFailure, err
 }
 
 func (t *EvalHydroResult) FromEvalHydroResultFailure(v EvalHydroResultFailure) error {
-	v.Success = false
+	v.Success = "false"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-func (t EvalHydroResult) Discriminator() (bool, error) {
+func (t EvalHydroResult) Discriminator() (string, error) {
 	var discriminator struct {
-		Discriminator bool `json:"success"`
+		Discriminator string `json:"success"`
 	}
 	err := json.Unmarshal(t.union, &discriminator)
 	return discriminator.Discriminator, err
@@ -423,10 +424,12 @@ func (t EvalHydroResult) ValueByDiscriminator() (interface{}, error) {
 		return nil, err
 	}
 	switch discriminator {
-	case false:
+	case "false":
 		return t.AsEvalHydroResultFailure()
-	default:
+	case "true":
 		return t.AsEvalHydroResultSuccess()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
 }
 
@@ -447,7 +450,7 @@ func (t EvalNewResult) AsEvalNewResultSuccess() (EvalNewResultSuccess, error) {
 }
 
 func (t *EvalNewResult) FromEvalNewResultSuccess(v EvalNewResultSuccess) error {
-	v.Success = true
+	v.Success = "true"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -460,15 +463,15 @@ func (t EvalNewResult) AsEvalNewResultFailure() (EvalNewResultFailure, error) {
 }
 
 func (t *EvalNewResult) FromEvalNewResultFailure(v EvalNewResultFailure) error {
-	v.Success = false
+	v.Success = "false"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-func (t EvalNewResult) Discriminator() (bool, error) {
+func (t EvalNewResult) Discriminator() (string, error) {
 	var discriminator struct {
-		Discriminator bool `json:"success"`
+		Discriminator string `json:"success"`
 	}
 	err := json.Unmarshal(t.union, &discriminator)
 	return discriminator.Discriminator, err
@@ -480,10 +483,12 @@ func (t EvalNewResult) ValueByDiscriminator() (interface{}, error) {
 		return nil, err
 	}
 	switch discriminator {
-	case false:
+	case "false":
 		return t.AsEvalNewResultFailure()
-	default:
+	case "true":
 		return t.AsEvalNewResultSuccess()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
 }
 
@@ -504,7 +509,7 @@ func (t EvalSpectrumResult) AsEvalSpectrumResultSuccess() (EvalSpectrumResultSuc
 }
 
 func (t *EvalSpectrumResult) FromEvalSpectrumResultSuccess(v EvalSpectrumResultSuccess) error {
-	v.Success = true
+	v.Success = "true"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -517,15 +522,15 @@ func (t EvalSpectrumResult) AsEvalSpectrumResultFailure() (EvalSpectrumResultFai
 }
 
 func (t *EvalSpectrumResult) FromEvalSpectrumResultFailure(v EvalSpectrumResultFailure) error {
-	v.Success = false
+	v.Success = "false"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-func (t EvalSpectrumResult) Discriminator() (bool, error) {
+func (t EvalSpectrumResult) Discriminator() (string, error) {
 	var discriminator struct {
-		Discriminator bool `json:"success"`
+		Discriminator string `json:"success"`
 	}
 	err := json.Unmarshal(t.union, &discriminator)
 	return discriminator.Discriminator, err
@@ -537,10 +542,12 @@ func (t EvalSpectrumResult) ValueByDiscriminator() (interface{}, error) {
 		return nil, err
 	}
 	switch discriminator {
-	case false:
+	case "false":
 		return t.AsEvalSpectrumResultFailure()
-	default:
+	case "true":
 		return t.AsEvalSpectrumResultSuccess()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
 }
 
@@ -561,7 +568,7 @@ func (t EvalStoreResult) AsEvalStoreResultSuccess() (EvalStoreResultSuccess, err
 }
 
 func (t *EvalStoreResult) FromEvalStoreResultSuccess(v EvalStoreResultSuccess) error {
-	v.Success = true
+	v.Success = "true"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -574,15 +581,15 @@ func (t EvalStoreResult) AsEvalStoreResultFailure() (EvalStoreResultFailure, err
 }
 
 func (t *EvalStoreResult) FromEvalStoreResultFailure(v EvalStoreResultFailure) error {
-	v.Success = false
+	v.Success = "false"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-func (t EvalStoreResult) Discriminator() (bool, error) {
+func (t EvalStoreResult) Discriminator() (string, error) {
 	var discriminator struct {
-		Discriminator bool `json:"success"`
+		Discriminator string `json:"success"`
 	}
 	err := json.Unmarshal(t.union, &discriminator)
 	return discriminator.Discriminator, err
@@ -594,10 +601,12 @@ func (t EvalStoreResult) ValueByDiscriminator() (interface{}, error) {
 		return nil, err
 	}
 	switch discriminator {
-	case false:
+	case "false":
 		return t.AsEvalStoreResultFailure()
-	default:
+	case "true":
 		return t.AsEvalStoreResultSuccess()
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
 	}
 }
 
@@ -618,7 +627,7 @@ func (t StorageExtractResult) AsStorageExtractResultSuccess() (StorageExtractRes
 }
 
 func (t *StorageExtractResult) FromStorageExtractResultSuccess(v StorageExtractResultSuccess) error {
-	v.Success = true
+	v.Success = "true"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
@@ -631,15 +640,15 @@ func (t StorageExtractResult) AsStorageExtractResultFailure() (StorageExtractRes
 }
 
 func (t *StorageExtractResult) FromStorageExtractResultFailure(v StorageExtractResultFailure) error {
-	v.Success = false
+	v.Success = "false"
 	b, err := json.Marshal(v)
 	t.union = b
 	return err
 }
 
-func (t StorageExtractResult) Discriminator() (bool, error) {
+func (t StorageExtractResult) Discriminator() (string, error) {
 	var discriminator struct {
-		Discriminator bool `json:"success"`
+		Discriminator string `json:"success"`
 	}
 	err := json.Unmarshal(t.union, &discriminator)
 	return discriminator.Discriminator, err
@@ -651,11 +660,13 @@ func (t StorageExtractResult) ValueByDiscriminator() (interface{}, error) {
 		return nil, err
 	}
 	switch discriminator {
-	case false:
+	case "false":
 		return t.AsStorageExtractResultFailure()
-	default:
+	case "true":
 		return t.AsStorageExtractResultSuccess()
-		}
+	default:
+		return nil, errors.New("unknown discriminator value: " + discriminator)
+	}
 }
 
 func (t StorageExtractResult) MarshalJSON() ([]byte, error) {
