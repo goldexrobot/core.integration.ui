@@ -17,6 +17,8 @@ info:
     means JSONRPC request to the method `inlet.open`:
 
     `{"jsonrpc":"2.0","id":1,"method":"inlet.open","params":{...}}`
+    
+    **Note!** Request ID **must be** of type integer.
 
     ---
     
@@ -50,17 +52,11 @@ paths:
         - window
       operationId: inletOpen
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Result'
         default:
+          $ref: '#/components/responses/EmptyResult'
+        x-error:
           $ref: '#/components/responses/Error'
 
   /inlet.close:
@@ -71,17 +67,11 @@ paths:
         - window
       operationId: inletClose
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Result'
         default:
+          $ref: '#/components/responses/EmptyResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /outlet.close:
@@ -95,17 +85,11 @@ paths:
         - window
       operationId: outletClose
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Result'
         default:
+          $ref: '#/components/responses/EmptyResult'
+        x-error:
           $ref: '#/components/responses/Error'
 
   #
@@ -120,22 +104,15 @@ paths:
       tags:
         - eval
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/EvalNewResult'
-        default:
+                $ref: '#/components/schemas/EvalNewResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /eval.spectrum:
@@ -149,22 +126,15 @@ paths:
         - eval
       operationId: evalSpectrum
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/EvalSpectrumResult'
-        default:
+                $ref: '#/components/schemas/EvalSpectrumResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /eval.hydro:
@@ -178,22 +148,15 @@ paths:
         - eval
       operationId: evalHydro
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/EvalHydroResult'
-        default:
+                $ref: '#/components/schemas/EvalHydroResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /eval.return:
@@ -207,17 +170,11 @@ paths:
         - eval
       operationId: evalReturn
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Result'
         default:
+          $ref: '#/components/responses/EmptyResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /eval.store:
@@ -228,29 +185,19 @@ paths:
         - eval
       operationId: evalStore
       requestBody:
+        description: JSONRPC 2.0 params
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/Request'
-                - type: object
-                  required:
-                    - params
-                  properties:
-                    'params':
-                      $ref: '#/components/schemas/EvalStoreRequest'
+              $ref: '#/components/schemas/EvalStoreRequest'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/EvalStoreResult'
-        default:
+                $ref: '#/components/schemas/EvalStoreResult'
+        x-error:
           $ref: '#/components/responses/Error'
   
   #
@@ -265,22 +212,15 @@ paths:
         - other
       operationId: status
       requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Request'
+        $ref: '#/components/requestBodies/EmptyParams'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/StatusResult'
-        default:
+                $ref: '#/components/schemas/StatusResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /storage.extract:
@@ -294,29 +234,19 @@ paths:
         - other
       operationId: storageExtract
       requestBody:
+        description: JSONRPC 2.0 params
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/Request'
-                - type: object
-                  required:
-                    - params
-                  properties:
-                    'params':
-                      $ref: '#/components/schemas/StorageExtractRequest'
+              $ref: '#/components/schemas/StorageExtractRequest'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/StorageExtractResult'
-        default:
+                $ref: '#/components/schemas/StorageExtractResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /hardware:
@@ -327,25 +257,11 @@ paths:
         - event
       operationId: hardwareEvent
       requestBody:
+        description: JSONRPC 2.0 event params
         content:
           application/json:
             schema:
-              type: object 
-              required:
-                - jsonrpc
-                - method
-                - params
-              properties:
-                'jsonrpc':
-                  description: JSONRPC version 2.0
-                  type: string
-                  example: '2.0'
-                'method':
-                  description: Event name
-                  type: string
-                  example: hardware
-                'params':
-                  $ref: '#/components/schemas/HardwareEvent'
+              $ref: '#/components/schemas/HardwareEvent'
       responses:
         default:
           description: No response for event
@@ -357,29 +273,19 @@ paths:
         - other
       operationId: hardware
       requestBody:
+        description: JSONRPC 2.0 params
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/Request'
-                - type: object
-                  required:
-                    - params
-                  properties:
-                    'params':
-                      $ref: '#/components/schemas/HardwareRequest'
+              $ref: '#/components/schemas/HardwareRequest'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/HardwareResult'
-        default:
+                $ref: '#/components/schemas/HardwareResult'
+        x-error:
           $ref: '#/components/responses/Error'
           
   /proxy:
@@ -393,29 +299,19 @@ paths:
         - other
       operationId: proxy
       requestBody:
+        description: JSONRPC 2.0 params
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/Request'
-                - type: object
-                  required:
-                    - params
-                  properties:
-                    'params':
-                      $ref: '#/components/schemas/ProxyRequest'
+              $ref: '#/components/schemas/ProxyRequest'
       responses:
-        x-result:
+        default:
+          description: JSONRPC 2.0 result
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/Result'
-                  - type: object
-                    properties:
-                      'result':
-                        $ref: '#/components/schemas/ProxyResult'
-        default:
+                $ref: '#/components/schemas/ProxyResult'
+        x-error:
           $ref: '#/components/responses/Error'
 
 #
@@ -441,6 +337,9 @@ components:
         - $ref: '#/components/schemas/EvalNewResultFailure'
       discriminator:
         propertyName: success
+        mapping:
+          true: '#/components/schemas/EvalNewResultSuccess'
+          false: '#/components/schemas/EvalNewResultFailure'
       
     EvalNewResultSuccess:
       type: object
@@ -484,6 +383,9 @@ components:
         - $ref: '#/components/schemas/EvalSpectrumResultFailure'
       discriminator:
         propertyName: success
+        mapping:
+          true: '#/components/schemas/EvalSpectrumResultSuccess'
+          false: '#/components/schemas/EvalSpectrumResultFailure'
     
     EvalSpectrumResultSuccess:
       type: object
@@ -550,10 +452,13 @@ components:
     
     EvalHydroResult:
       oneOf:
-        - $ref: '#/components/schemas/EvalHydroResultFailure'
         - $ref: '#/components/schemas/EvalHydroResultSuccess'
+        - $ref: '#/components/schemas/EvalHydroResultFailure'
       discriminator:
         propertyName: success
+        mapping:
+          true: '#/components/schemas/EvalHydroResultSuccess'
+          false: '#/components/schemas/EvalHydroResultFailure'
     
     EvalHydroResultSuccess:
       type: object
@@ -651,6 +556,9 @@ components:
         - $ref: '#/components/schemas/EvalStoreResultFailure'
       discriminator:
         propertyName: success
+        mapping:
+          true: '#/components/schemas/EvalStoreResultSuccess'
+          false: '#/components/schemas/EvalStoreResultFailure'
     
     EvalStoreResultSuccess:
       type: object
@@ -861,10 +769,13 @@ components:
     
     StorageExtractResult:
       oneOf:
-        - $ref: '#/components/schemas/StorageExtractResultFailure'
         - $ref: '#/components/schemas/StorageExtractResultSuccess'
+        - $ref: '#/components/schemas/StorageExtractResultFailure'
       discriminator:
         propertyName: success
+        mapping:
+          true: '#/components/schemas/StorageExtractResultSuccess'
+          false: '#/components/schemas/StorageExtractResultFailure'
     
     StorageExtractResultSuccess:
       type: object
@@ -894,49 +805,6 @@ components:
     #
     # Primitives
     #
-    
-    Request:
-      description: JSONRPC 2.0 request
-      type: object
-      required:
-        - jsonrpc
-        - id
-        - method
-      properties:
-        'jsonrpc':
-          description: JSONRPC version 2.0
-          type: string
-          example: '2.0'
-        'id':
-          description: Request ID
-          type: integer
-          format: uint64
-          example: 42
-        'method':
-          description: Method name
-          type: string
-          example: this.method.name
-
-    Result:
-      description: JSONRPC 2.0 result
-      type: object
-      required:
-        - jsonrpc
-        - id
-        - result
-      properties:
-        'jsonrpc':
-          description: JSONRPC version 2.0
-          type: string
-          example: '2.0'
-        'id':
-          description: Request ID
-          type: integer
-          format: uint64
-          example: 42
-        'result':
-          description: Empty result
-          type: object
 
     StorageCell:
       description: Storage cell address
@@ -961,10 +829,31 @@ components:
         - unconfirmed   # could not to perform cross-checks to confirm fineness
 
   #
+  # Requests
+  #
+
+  requestBodies:
+
+    EmptyParams:
+      description: JSONRPC 2.0 empty params
+      content:
+        application/json:
+          schema:
+            type: object
+  
+  #
   # Responses
   #
   
   responses:
+
+    EmptyResult:
+      description: JSONRPC 2.0 empty result
+      content:
+        application/json:
+          schema:
+            type: object
+      
     Error:
       description: JSONRPC 2.0 error
       content:
@@ -972,30 +861,14 @@ components:
           schema:
             type: object
             required:
-              - jsonrpc
-              - error
+              - code
+              - message
             properties:
-              'jsonrpc':
-                description: JSONRPC version 2.0
+              'code':
+                description: Standard or implementation-dependent error code
+                type: number
+                example: -32700
+              'message':
+                description: Error description
                 type: string
-                example: '2.0'
-              'id':
-                description: Request ID (if presented in request)
-                type: integer
-                format: uint64
-                nullable: true
-                example: 42
-              'error':
-                type: object
-                required:
-                  - code
-                  - message
-                properties:
-                  'code':
-                    description: Standard or implementation-dependent error code
-                    type: number
-                    example: -32700
-                  'message':
-                    description: Error description
-                    type: string
-                    example: Invalid JSON was received by the server
+                example: Invalid JSON was received by the server

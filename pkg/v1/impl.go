@@ -239,17 +239,20 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 
 	switch {
 	case netFail:
-		return EvalNewResultFailure{
+		res.FromEvalNewResultFailure(EvalNewResultFailure{
 			Failure: EvalNewResultFailureFailureNetworkUnavailable,
-		}, nil
+		})
+		return
 	case failNoRoom:
-		return EvalNewResultFailure{
+		res.FromEvalNewResultFailure(EvalNewResultFailure{
 			Failure: EvalNewResultFailureFailureNoStorageRoom,
-		}, nil
+		})
+		return
 	case failHW:
-		return EvalNewResultFailure{
+		res.FromEvalNewResultFailure(EvalNewResultFailure{
 			Failure: EvalNewResultFailureFailureHardwareCheckFailed,
-		}, nil
+		})
+		return
 	}
 
 	// customer photo
@@ -258,11 +261,12 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 	a.evalState = evalNewCreated
 	a.evalCell = storageCell
 
-	return EvalNewResultSuccess{
+	res.FromEvalNewResultSuccess(EvalNewResultSuccess{
 		EvalId:      evalID,
 		StorageCell: storageCell,
 		Success:     true,
-	}, nil
+	})
+	return
 }
 
 // Starts a spectral evaluation of the item. Should be called right after `eval.new`.
@@ -290,25 +294,28 @@ func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err er
 	a.evalState = evalSpectrumFinishedRejection
 	switch {
 	case netFail:
-		return EvalSpectrumResultFailure{
+		res.FromEvalSpectrumResultFailure(EvalSpectrumResultFailure{
 			Failure: EvalSpectrumResultFailureFailureNetworkUnavailable,
-		}, nil
+		})
+		return
 	case rejection != "":
-		return EvalSpectrumResultFailure{
+		res.FromEvalSpectrumResultFailure(EvalSpectrumResultFailure{
 			Failure: EvalSpectrumResultFailureFailureItemRejected,
 			Reason:  ItemRejectionReason(rejection),
-		}, nil
+		})
+		return
 	}
 
 	a.evalState = evalSpectrumFinishedSuccess
-	return EvalSpectrumResultSuccess{
+	res.FromEvalSpectrumResultSuccess(EvalSpectrumResultSuccess{
 		Success:    true,
 		Alloy:      eval.Alloy,
 		Purity:     eval.Purity,
 		Millesimal: int64(eval.Millesimal),
 		Carat:      eval.Carat,
 		Spectrum:   eval.Spectrum,
-	}, nil
+	})
+	return
 }
 
 // Starts a hydrostatic evaluation of the item. Should be called right after `eval.spectrum`.
@@ -337,18 +344,21 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 
 	switch {
 	case netFail:
-		return EvalHydroResultFailure{
+		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
 			Failure: EvalHydroResultFailureFailureNetworkUnavailable,
-		}, nil
+		})
+		return
 	case unstableScale:
-		return EvalHydroResultFailure{
+		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
 			Failure: EvalHydroResultFailureFailureUnstableScale,
-		}, nil
+		})
+		return
 	case rejection != "":
-		return EvalHydroResultFailure{
+		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
 			Failure: EvalHydroResultFailureFailureEvalRejected,
 			Reason:  ItemRejectionReason(rejection),
-		}, nil
+		})
+		return
 	}
 
 	// call backend to finalize eval
@@ -360,19 +370,21 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 
 	switch {
 	case netFail:
-		return EvalHydroResultFailure{
+		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
 			Failure: EvalHydroResultFailureFailureNetworkUnavailable,
-		}, nil
+		})
+		return
 	case rejection != "":
-		return EvalHydroResultFailure{
+		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
 			Failure: EvalHydroResultFailureFailureEvalRejected,
 			Reason:  ItemRejectionReason(rejection),
-		}, nil
+		})
+		return
 	}
 
 	a.evalState = evalHydroFinishedSuccess
 
-	return EvalHydroResultSuccess{
+	res.FromEvalHydroResultSuccess(EvalHydroResultSuccess{
 		Success:    true,
 		Alloy:      fineness.Alloy,
 		Purity:     fineness.Purity,
@@ -382,7 +394,8 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 		Confidence: fineness.Confidence,
 		Risky:      fineness.Risky,
 		Warnings:   fineness.Warnings,
-	}, nil
+	})
+	return
 }
 
 // Starts a returning process of the item. Should be called after spectral/hydrostatic evaluation.
@@ -445,13 +458,15 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 
 	switch {
 	case netFail:
-		return EvalStoreResultFailure{
+		res.FromEvalStoreResultFailure(EvalStoreResultFailure{
 			Failure: EvalStoreResultFailureFailureNetworkUnavailable,
-		}, nil
+		})
+		return
 	case forbidden:
-		return EvalStoreResultFailure{
+		res.FromEvalStoreResultFailure(EvalStoreResultFailure{
 			Failure: EvalStoreResultFailureFailureForbidden,
-		}, nil
+		})
+		return
 	}
 
 	cell, err := a.hw.StoreAfterHydroEval(ctx)
@@ -461,11 +476,11 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 
 	a.evalState = evalInitial
 
-	res = EvalStoreResultSuccess{
+	res.FromEvalStoreResultSuccess(EvalStoreResultSuccess{
 		Success:     true,
 		Cell:        cell,
 		Transaction: tx,
-	}
+	})
 	return
 }
 
@@ -501,13 +516,15 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 
 	switch {
 	case netFail:
-		return StorageExtractResultFailure{
+		res.FromStorageExtractResultFailure(StorageExtractResultFailure{
 			Failure: NetworkUnavailable,
-		}, nil
+		})
+		return
 	case forbidden:
-		return StorageExtractResultFailure{
+		res.FromStorageExtractResultFailure(StorageExtractResultFailure{
 			Failure: Forbidden,
-		}, nil
+		})
+		return
 	}
 
 	if err = a.hw.ExtractCellFromStorage(ctx, req.Cell); err != nil {
@@ -516,10 +533,10 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 
 	a.evalState = evalOutletOpened
 
-	res = StorageExtractResultSuccess{
+	res.FromStorageExtractResultSuccess(StorageExtractResultSuccess{
 		Success:     true,
 		Transaction: tx,
-	}
+	})
 	return
 }
 
@@ -531,7 +548,7 @@ func (a *Impl) Status(ctx context.Context) (res StatusResult, err error) {
 	if err != nil {
 		return
 	}
-	
+
 	projectID, botID, err := a.hw.BotIdentity(ctx)
 	if err != nil {
 		return

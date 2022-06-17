@@ -2,7 +2,7 @@ all: swagger oapi-codegen-apiv1
 	@:
 
 tools:
-	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+	go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@master
 	
 swagger:
 	cp ./api/v1/openapi.yaml ./docs/api-v1.yaml
