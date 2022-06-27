@@ -31,6 +31,7 @@ const (
 // Defines values for EvalStoreRequestDomain.
 const (
 	EvalStoreRequestDomainBuyout   EvalStoreRequestDomain = "buyout"
+	EvalStoreRequestDomainCustom   EvalStoreRequestDomain = "custom"
 	EvalStoreRequestDomainPawnshop EvalStoreRequestDomain = "pawnshop"
 )
 
@@ -51,6 +52,7 @@ const (
 
 // Defines values for StorageExtractRequestDomain.
 const (
+	StorageExtractRequestDomainCustom   StorageExtractRequestDomain = "custom"
 	StorageExtractRequestDomainPawnshop StorageExtractRequestDomain = "pawnshop"
 	StorageExtractRequestDomainShop     StorageExtractRequestDomain = "shop"
 )
@@ -169,7 +171,7 @@ type EvalSpectrumResultSuccess struct {
 // EvalStoreRequest defines model for EvalStoreRequest.
 type EvalStoreRequest struct {
 	// Cell occupation operation domain
-	Domain EvalStoreRequestDomain `json:"domain" validate:"required,oneof=buyout pawnshop"`
+	Domain EvalStoreRequestDomain `json:"domain" validate:"required,oneof=buyout pawnshop custom"`
 }
 
 // Cell occupation operation domain
@@ -287,7 +289,7 @@ type StorageExtractRequest struct {
 	Cell StorageCell `json:"cell" validate:"required,alphanum,min=2,max=4"`
 
 	// Cell release operation domain
-	Domain StorageExtractRequestDomain `json:"domain" validate:"required,oneof=shop pawnshop"`
+	Domain StorageExtractRequestDomain `json:"domain" validate:"required,oneof=shop pawnshop custom"`
 }
 
 // Cell release operation domain

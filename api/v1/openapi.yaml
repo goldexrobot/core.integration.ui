@@ -547,8 +547,9 @@ components:
           enum:
             - buyout
             - pawnshop
+            - custom
           x-oapi-codegen-extra-tags:
-            validate: required,oneof=buyout pawnshop
+            validate: required,oneof=buyout pawnshop custom
     
     EvalStoreResult:
       oneOf:
@@ -764,8 +765,9 @@ components:
           enum:
             - shop
             - pawnshop
+            - custom
           x-oapi-codegen-extra-tags:
-            validate: required,oneof=shop pawnshop
+            validate: required,oneof=shop pawnshop custom
     
     StorageExtractResult:
       oneOf:
