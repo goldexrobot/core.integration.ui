@@ -10,7 +10,7 @@ import (
 
 // Defines values for EvalHydroResultFailureFailure.
 const (
-	EvalHydroResultFailureFailureEvalRejected       EvalHydroResultFailureFailure = "eval_rejected"
+	EvalHydroResultFailureFailureItemRejected       EvalHydroResultFailureFailure = "item_rejected"
 	EvalHydroResultFailureFailureNetworkUnavailable EvalHydroResultFailureFailure = "network_unavailable"
 	EvalHydroResultFailureFailureUnstableScale      EvalHydroResultFailureFailure = "unstable_scale"
 )

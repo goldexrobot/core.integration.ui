@@ -527,7 +527,7 @@ components:
           type: string
           enum:
             - network_unavailable
-            - eval_rejected
+            - item_rejected
             - unstable_scale
         'reason':
           $ref: '#/components/schemas/ItemRejectionReason'

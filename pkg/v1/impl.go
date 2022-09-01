@@ -353,7 +353,7 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 		return
 	case rejection != "":
 		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
-			Failure: EvalHydroResultFailureFailureEvalRejected,
+			Failure: EvalHydroResultFailureFailureItemRejected,
 			Reason:  ItemRejectionReason(rejection),
 		})
 		return
@@ -374,7 +374,7 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 		return
 	case rejection != "":
 		res.FromEvalHydroResultFailure(EvalHydroResultFailure{
-			Failure: EvalHydroResultFailureFailureEvalRejected,
+			Failure: EvalHydroResultFailureFailureItemRejected,
 			Reason:  ItemRejectionReason(rejection),
 		})
 		return
