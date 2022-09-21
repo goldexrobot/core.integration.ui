@@ -9,4 +9,3 @@ output-options:
   skip-fmt: false
   skip-prune: true
   response-type-suffix: ""
-additionalProperties: false
