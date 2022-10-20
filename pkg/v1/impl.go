@@ -48,9 +48,9 @@ const (
 // Provides interaction with parent software module
 type Moduler interface {
 	// Checks parent module is operational
-	Operational() (ok bool)
+	Operational(ctx context.Context) (ok bool)
 	// Called on critical hardware errors
-	Broken(err error)
+	Broken(ctx context.Context, err error)
 }
 
 // Communicates hardware and network services
@@ -62,7 +62,7 @@ type Hardwarer interface {
 	NewEval(ctx context.Context) (evalID uint64, cell string, netFail, noRoom, hwFail bool, err error)
 	SpectralEval(ctx context.Context) (eval ImplSpectralData, netFail bool, rejected string, err error)
 	HydroEval(ctx context.Context) (eval ImplHydroData, netFail bool, rejected string, unstableScale bool, err error)
-	FinalizeEval(ctx context.Context) (fineness ImplFinenessData, netFail bool, rejected string, err error)
+	FinalizeEval(ctx context.Context, evalID uint64) (fineness ImplFinenessData, netFail bool, rejected string, err error)
 	ReturnAfterSpectrumEval(ctx context.Context, customerChoice bool) (err error)
 	ReturnAfterHydroEval(ctx context.Context, customerChoice bool) (err error)
 	StoreAfterHydroEval(ctx context.Context) (cell string, err error)
@@ -76,7 +76,7 @@ type Hardwarer interface {
 	OptionalHardwareHealth(ctx context.Context) (health map[string]bool, err error)
 	OptionalHardwareMethod(ctx context.Context, module, method string, request json.RawMessage) (result json.RawMessage, err error)
 
-	UploadFrontalCameraPhotoForEval(ctx context.Context)
+	UploadFrontalCameraPhotoForEval(ctx context.Context, evalID uint64)
 
 	BotIdentity(ctx context.Context) (projectID, botID uint64, err error)
 	InternetConnectivity(ctx context.Context) (ok bool)
