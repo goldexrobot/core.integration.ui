@@ -28,6 +28,7 @@ type Impl struct {
 	mu        sync.Mutex
 	busy      bool
 	evalState evalState
+	evalID    uint64
 	evalCell  string
 }
 
@@ -117,8 +118,8 @@ func NewImpl(mod Moduler, hw Hardwarer, logger *logrus.Entry) *Impl {
 	}
 }
 
-func (a *Impl) check() (err error) {
-	if !a.mod.Operational() {
+func (a *Impl) check(ctx context.Context) (err error) {
+	if !a.mod.Operational(ctx) {
 		err = errNonOperational
 		return
 	}
@@ -143,9 +144,9 @@ func (a *Impl) unlock() {
 	a.mu.Unlock()
 }
 
-func (a *Impl) setModuleBroken(err error) error {
+func (a *Impl) setModuleBroken(ctx context.Context, err error) error {
 	a.logger.WithError(err).Errorf("Fatal hardware error is occurred")
-	a.mod.Broken(err)
+	a.mod.Broken(ctx, err)
 	return fmt.Errorf("terminal is broken")
 }
 
@@ -153,7 +154,7 @@ func (a *Impl) setModuleBroken(err error) error {
 
 // Requires hardware to open inlet window. Should be called to receive a customer item before evaluation.
 func (a *Impl) InletOpen(ctx context.Context) (err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -166,7 +167,7 @@ func (a *Impl) InletOpen(ctx context.Context) (err error) {
 		return
 	}
 	if err = a.hw.OpenInlet(ctx); err != nil {
-		return a.setModuleBroken(err)
+		return a.setModuleBroken(ctx, err)
 	}
 	a.evalState = evalInletOpened
 	return
@@ -174,7 +175,7 @@ func (a *Impl) InletOpen(ctx context.Context) (err error) {
 
 // Requires hardware to close inlet window. Should be called right before evaluation launch.
 func (a *Impl) InletClose(ctx context.Context) (err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -187,7 +188,7 @@ func (a *Impl) InletClose(ctx context.Context) (err error) {
 		return
 	}
 	if err = a.hw.CloseInlet(ctx); err != nil {
-		return a.setModuleBroken(err)
+		return a.setModuleBroken(ctx, err)
 	}
 	a.evalState = evalInletClosed
 	return
@@ -195,7 +196,7 @@ func (a *Impl) InletClose(ctx context.Context) (err error) {
 
 // Requires hardware to close outlet window. Should be called manually after customer item return or storage item extraction.
 func (a *Impl) OutletClose(ctx context.Context) (err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -208,7 +209,7 @@ func (a *Impl) OutletClose(ctx context.Context) (err error) {
 		return
 	}
 	if err = a.hw.CloseOutlet(ctx); err != nil {
-		return a.setModuleBroken(err)
+		return a.setModuleBroken(ctx, err)
 	}
 	a.evalState = evalInitial
 	return
@@ -218,7 +219,7 @@ func (a *Impl) OutletClose(ctx context.Context) (err error) {
 
 // Prepares a new evaluation operation: check hardware, notify backend server, etc.
 func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -233,7 +234,7 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 
 	evalID, storageCell, netFail, failNoRoom, failHW, err := a.hw.NewEval(ctx)
 	if err != nil {
-		err = a.setModuleBroken(err)
+		err = a.setModuleBroken(ctx, err)
 		return
 	}
 
@@ -256,9 +257,10 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 	}
 
 	// customer photo
-	a.hw.UploadFrontalCameraPhotoForEval(ctx)
+	a.hw.UploadFrontalCameraPhotoForEval(ctx, evalID)
 
 	a.evalState = evalNewCreated
+	a.evalID = evalID
 	a.evalCell = storageCell
 
 	res.FromEvalNewResultSuccess(EvalNewResultSuccess{
@@ -271,7 +273,7 @@ func (a *Impl) EvalNew(ctx context.Context) (res EvalNewResult, err error) {
 // Starts a spectral evaluation of the item. Should be called right after `eval.new`.
 // On successful spectral evaluation the item might be returned back to customer with `eval.return`, otherwise the evaluation should be continued with `eval.hydro`.
 func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -286,7 +288,7 @@ func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err er
 
 	eval, netFail, rejection, err := a.hw.SpectralEval(ctx)
 	if err != nil {
-		err = a.setModuleBroken(err)
+		err = a.setModuleBroken(ctx, err)
 		return
 	}
 
@@ -319,7 +321,7 @@ func (a *Impl) EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err er
 // Starts a hydrostatic evaluation of the item. Should be called right after `eval.spectrum`.
 // On successful hydrostatic evaluation the item might be returned back to customer with `eval.return`.
 func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -334,7 +336,7 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 
 	eval, netFail, rejection, unstableScale, err := a.hw.HydroEval(ctx)
 	if err != nil {
-		err = a.setModuleBroken(err)
+		err = a.setModuleBroken(ctx, err)
 		return
 	}
 
@@ -360,9 +362,9 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 	}
 
 	// call backend to finalize eval
-	fineness, netFail, rejection, xerr := a.hw.FinalizeEval(ctx)
+	fineness, netFail, rejection, xerr := a.hw.FinalizeEval(ctx, a.evalID)
 	if xerr != nil {
-		err = a.setModuleBroken(xerr)
+		err = a.setModuleBroken(ctx, xerr)
 		return
 	}
 
@@ -398,7 +400,7 @@ func (a *Impl) EvalHydro(ctx context.Context) (res EvalHydroResult, err error) {
 // Starts a returning process of the item. Should be called after spectral/hydrostatic evaluation.
 // On successful returning outlet window should be closed manually: customer choice (preferred) or a timeout.
 func (a *Impl) EvalReturn(ctx context.Context) (err error) {
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -410,13 +412,13 @@ func (a *Impl) EvalReturn(ctx context.Context) (err error) {
 	case evalSpectrumFinishedSuccess, evalSpectrumFinishedRejection:
 		err = a.hw.ReturnAfterSpectrumEval(ctx, a.evalState == evalSpectrumFinishedSuccess)
 		if err != nil {
-			return a.setModuleBroken(err)
+			return a.setModuleBroken(ctx, err)
 		}
 		a.evalState = evalOutletOpened
 	case evalHydroFinishedSuccess, evalHydroFinishedRejection:
 		err = a.hw.ReturnAfterHydroEval(ctx, a.evalState == evalHydroFinishedSuccess)
 		if err != nil {
-			return a.setModuleBroken(err)
+			return a.setModuleBroken(ctx, err)
 		}
 		a.evalState = evalOutletOpened
 	default:
@@ -431,7 +433,7 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -449,7 +451,7 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 	// occupy on backend side
 	netFail, forbidden, err := a.hw.StorageOccupyCell(ctx, a.evalCell, string(req.Domain), tx)
 	if err != nil {
-		err = a.setModuleBroken(err)
+		err = a.setModuleBroken(ctx, err)
 		return
 	}
 
@@ -468,7 +470,7 @@ func (a *Impl) EvalStore(ctx context.Context, req EvalStoreRequest) (res EvalSto
 
 	cell, err := a.hw.StoreAfterHydroEval(ctx)
 	if err != nil {
-		_ = a.setModuleBroken(err)
+		_ = a.setModuleBroken(ctx, err)
 	}
 
 	a.evalState = evalInitial
@@ -488,7 +490,7 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 	if err = newValidator().Struct(req); err != nil {
 		return
 	}
-	if err = a.check(); err != nil {
+	if err = a.check(ctx); err != nil {
 		return
 	}
 	if err = a.lock(); err != nil {
@@ -506,7 +508,7 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 	// occupy on backend side
 	netFail, forbidden, err := a.hw.StorageReleaseCell(ctx, req.Cell, string(req.Domain), tx)
 	if err != nil {
-		err = a.setModuleBroken(err)
+		err = a.setModuleBroken(ctx, err)
 		return
 	}
 
@@ -524,7 +526,7 @@ func (a *Impl) StorageExtract(ctx context.Context, req StorageExtractRequest) (r
 	}
 
 	if err = a.hw.ExtractCellFromStorage(ctx, req.Cell); err != nil {
-		_ = a.setModuleBroken(err)
+		_ = a.setModuleBroken(ctx, err)
 	}
 
 	a.evalState = evalOutletOpened
@@ -552,7 +554,7 @@ func (a *Impl) Status(ctx context.Context) (res StatusResult, err error) {
 	res = StatusResult{
 		ProjectId:          projectID,
 		BotId:              botID,
-		Operational:        a.mod.Operational(),
+		Operational:        a.mod.Operational(ctx),
 		InternetConnection: a.hw.InternetConnectivity(ctx),
 		OptionalHardware:   oh,
 		Features: StatusResultFeatures{
