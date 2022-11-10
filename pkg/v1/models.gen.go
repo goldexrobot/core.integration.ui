@@ -65,6 +65,12 @@ const (
 	NetworkUnavailable StorageExtractResultFailureFailure = "network_unavailable"
 )
 
+// Defines values for SuccessFlag.
+const (
+	False SuccessFlag = "false"
+	True  SuccessFlag = "true"
+)
+
 // EvalHydroResult defines model for EvalHydroResult.
 type EvalHydroResult struct {
 	union json.RawMessage
@@ -75,8 +81,10 @@ type EvalHydroResultFailure struct {
 	Failure EvalHydroResultFailureFailure `json:"failure"`
 
 	// Reason Reason why the item is rejected by the Goldex. It's non-empty if evaluation failure is `item_rejected`
-	Reason  ItemRejectionReason `json:"reason"`
-	Success string              `json:"success"`
+	Reason ItemRejectionReason `json:"reason"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // EvalHydroResultFailureFailure defines model for EvalHydroResultFailure.Failure.
@@ -100,8 +108,10 @@ type EvalHydroResultSuccess struct {
 	Purity float64 `json:"purity"`
 
 	// Risky Automatic decision result
-	Risky   bool   `json:"risky"`
-	Success string `json:"success"`
+	Risky bool `json:"risky"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 
 	// Warnings Warnings that should help with decision. For instance, there could be a tungsten covered with gold.
 	Warnings []string `json:"warnings"`
@@ -118,7 +128,9 @@ type EvalNewResult struct {
 // EvalNewResultFailure defines model for EvalNewResultFailure.
 type EvalNewResultFailure struct {
 	Failure EvalNewResultFailureFailure `json:"failure"`
-	Success string                      `json:"success"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // EvalNewResultFailureFailure defines model for EvalNewResultFailure.Failure.
@@ -131,7 +143,9 @@ type EvalNewResultSuccess struct {
 
 	// StorageCell Storage cell address
 	StorageCell StorageCell `json:"storage_cell" validate:"required,alphanum,min=2,max=4"`
-	Success     string      `json:"success"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // EvalSpectrumResult defines model for EvalSpectrumResult.
@@ -144,8 +158,10 @@ type EvalSpectrumResultFailure struct {
 	Failure EvalSpectrumResultFailureFailure `json:"failure"`
 
 	// Reason Reason why the item is rejected by the Goldex. It's non-empty if evaluation failure is `item_rejected`
-	Reason  ItemRejectionReason `json:"reason"`
-	Success string              `json:"success"`
+	Reason ItemRejectionReason `json:"reason"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // EvalSpectrumResultFailureFailure defines model for EvalSpectrumResultFailure.Failure.
@@ -167,7 +183,9 @@ type EvalSpectrumResultSuccess struct {
 
 	// Spectrum Spectrum data
 	Spectrum map[string]float64 `json:"spectrum"`
-	Success  string             `json:"success"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // EvalStoreRequest defines model for EvalStoreRequest.
@@ -187,7 +205,9 @@ type EvalStoreResult struct {
 // EvalStoreResultFailure defines model for EvalStoreResultFailure.
 type EvalStoreResultFailure struct {
 	Failure EvalStoreResultFailureFailure `json:"failure"`
-	Success string                        `json:"success"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // EvalStoreResultFailureFailure defines model for EvalStoreResultFailure.Failure.
@@ -196,8 +216,10 @@ type EvalStoreResultFailureFailure string
 // EvalStoreResultSuccess defines model for EvalStoreResultSuccess.
 type EvalStoreResultSuccess struct {
 	// Cell Storage cell address
-	Cell    StorageCell `json:"cell" validate:"required,alphanum,min=2,max=4"`
-	Success string      `json:"success"`
+	Cell StorageCell `json:"cell" validate:"required,alphanum,min=2,max=4"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 
 	// Transaction Unique storage cell operation ID
 	Transaction StorageCellTransaction `json:"transaction"`
@@ -233,8 +255,20 @@ type HardwareResult struct {
 	Result json.RawMessage `json:"result"`
 }
 
+// InletCloseResult defines model for InletCloseResult.
+type InletCloseResult struct {
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
+}
+
 // ItemRejectionReason Reason why the item is rejected by the Goldex. It's non-empty if evaluation failure is `item_rejected`
 type ItemRejectionReason string
+
+// OutletCloseResult defines model for OutletCloseResult.
+type OutletCloseResult struct {
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
+}
 
 // ProxyRequest defines model for ProxyRequest.
 type ProxyRequest struct {
@@ -305,7 +339,9 @@ type StorageExtractResult struct {
 // StorageExtractResultFailure defines model for StorageExtractResultFailure.
 type StorageExtractResultFailure struct {
 	Failure StorageExtractResultFailureFailure `json:"failure"`
-	Success string                             `json:"success"`
+
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 }
 
 // StorageExtractResultFailureFailure defines model for StorageExtractResultFailure.Failure.
@@ -313,11 +349,15 @@ type StorageExtractResultFailureFailure string
 
 // StorageExtractResultSuccess defines model for StorageExtractResultSuccess.
 type StorageExtractResultSuccess struct {
-	Success string `json:"success"`
+	// Success Success flag, string representation
+	Success SuccessFlag `json:"success"`
 
 	// Transaction Unique storage cell operation ID
 	Transaction StorageCellTransaction `json:"transaction"`
 }
+
+// SuccessFlag Success flag, string representation
+type SuccessFlag string
 
 // EmptyResult defines model for EmptyResult.
 type EmptyResult = map[string]interface{}

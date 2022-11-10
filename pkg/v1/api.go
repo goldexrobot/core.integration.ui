@@ -4,8 +4,8 @@ import "context"
 
 type API interface {
 	InletOpen(ctx context.Context) (err error)
-	InletClose(ctx context.Context) (err error)
-	OutletClose(ctx context.Context) (err error)
+	InletClose(ctx context.Context) (res InletCloseResult, err error)
+	OutletClose(ctx context.Context) (res OutletCloseResult, err error)
 	EvalNew(ctx context.Context) (res EvalNewResult, err error)
 	EvalSpectrum(ctx context.Context) (res EvalSpectrumResult, err error)
 	EvalHydro(ctx context.Context) (res EvalHydroResult, err error)

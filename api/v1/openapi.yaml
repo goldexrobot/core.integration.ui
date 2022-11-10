@@ -70,7 +70,11 @@ paths:
         $ref: '#/components/requestBodies/EmptyParams'
       responses:
         default:
-          $ref: '#/components/responses/EmptyResult'
+          description: JSONRPC 2.0 result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InletCloseResult'
         x-error:
           $ref: '#/components/responses/Error'
           
@@ -88,7 +92,11 @@ paths:
         $ref: '#/components/requestBodies/EmptyParams'
       responses:
         default:
-          $ref: '#/components/responses/EmptyResult'
+          description: JSONRPC 2.0 result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OutletCloseResult'
         x-error:
           $ref: '#/components/responses/Error'
 
@@ -327,6 +335,26 @@ components:
   schemas:
   
     #
+    # Inlet/outlet
+    #
+
+    InletCloseResult:
+      type: object
+      required:
+        - success
+      properties:
+        'success':
+          $ref: '#/components/schemas/SuccessFlag'
+    
+    OutletCloseResult:
+      type: object
+      required:
+        - success
+      properties:
+        'success':
+          $ref: '#/components/schemas/SuccessFlag'
+
+    #
     # New eval
     #
     
@@ -349,7 +377,7 @@ components:
         - storage_cell
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'eval_id':
           description: Evaluation ID
           type: integer
@@ -365,7 +393,7 @@ components:
         - failure
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'failure':
           type: string
           enum:
@@ -398,7 +426,7 @@ components:
         - spectrum
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'alloy':
           description: Valuable metal
           type: string
@@ -437,7 +465,7 @@ components:
         - reason
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'failure':
           type: string
           enum:
@@ -474,7 +502,7 @@ components:
         - weight
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'alloy':
           description: Valuable metal
           type: string
@@ -522,7 +550,7 @@ components:
         - reason
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'failure':
           type: string
           enum:
@@ -569,7 +597,7 @@ components:
         - transaction
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'cell':
           $ref: '#/components/schemas/StorageCell'
         'transaction':
@@ -582,7 +610,7 @@ components:
         - failure
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'failure':
           type: string
           enum:
@@ -786,7 +814,7 @@ components:
         - transaction
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'transaction':
           $ref: '#/components/schemas/StorageCellTransaction'
     
@@ -797,7 +825,7 @@ components:
         - failure
       properties:
         'success':
-          type: string
+          $ref: '#/components/schemas/SuccessFlag'
         'failure':
           type: string
           enum:
@@ -807,6 +835,14 @@ components:
     #
     # Primitives
     #
+
+    SuccessFlag:
+      description: Success flag, string representation
+      type: string
+      example: 'true'
+      enum:
+        - 'true'
+        - 'false'
 
     StorageCell:
       description: Storage cell address

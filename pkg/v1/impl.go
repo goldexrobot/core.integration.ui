@@ -57,8 +57,8 @@ type Moduler interface {
 // Communicates hardware and network services
 type Hardwarer interface {
 	OpenInlet(ctx context.Context) (err error)
-	CloseInlet(ctx context.Context) (err error)
-	CloseOutlet(ctx context.Context) (err error)
+	CloseInlet(ctx context.Context) (closed bool, err error)
+	CloseOutlet(ctx context.Context) (closed bool, err error)
 
 	NewEval(ctx context.Context) (evalID uint64, cell string, netFail, noRoom, hwFail bool, err error)
 	SpectralEval(ctx context.Context) (eval ImplSpectralData, netFail bool, rejected string, err error)
@@ -174,7 +174,7 @@ func (a *Impl) InletOpen(ctx context.Context) (err error) {
 }
 
 // Requires hardware to close inlet window. Should be called right before evaluation launch.
-func (a *Impl) InletClose(ctx context.Context) (err error) {
+func (a *Impl) InletClose(ctx context.Context) (res InletCloseResult, err error) {
 	if err = a.check(ctx); err != nil {
 		return
 	}
@@ -187,15 +187,27 @@ func (a *Impl) InletClose(ctx context.Context) (err error) {
 		err = fmt.Errorf("invalid state: first open inlet")
 		return
 	}
-	if err = a.hw.CloseInlet(ctx); err != nil {
-		return a.setModuleBroken(ctx, err)
+	closed, err := a.hw.CloseInlet(ctx)
+	if err != nil {
+		err = a.setModuleBroken(ctx, err)
+		return
 	}
-	a.evalState = evalInletClosed
+	if closed {
+		a.evalState = evalInletClosed
+		res = InletCloseResult{
+			Success: True,
+		}
+		return
+	}
+
+	res = InletCloseResult{
+		Success: False,
+	}
 	return
 }
 
 // Requires hardware to close outlet window. Should be called manually after customer item return or storage item extraction.
-func (a *Impl) OutletClose(ctx context.Context) (err error) {
+func (a *Impl) OutletClose(ctx context.Context) (res OutletCloseResult, err error) {
 	if err = a.check(ctx); err != nil {
 		return
 	}
@@ -208,10 +220,21 @@ func (a *Impl) OutletClose(ctx context.Context) (err error) {
 		err = fmt.Errorf("invalid state: outlet is not opened")
 		return
 	}
-	if err = a.hw.CloseOutlet(ctx); err != nil {
-		return a.setModuleBroken(ctx, err)
+	closed, err := a.hw.CloseOutlet(ctx)
+	if err != nil {
+		err = a.setModuleBroken(ctx, err)
+		return
 	}
-	a.evalState = evalInitial
+	if closed {
+		a.evalState = evalInitial
+		res = OutletCloseResult{
+			Success: True,
+		}
+		return
+	}
+	res = OutletCloseResult{
+		Success: False,
+	}
 	return
 }
 
