@@ -10,7 +10,7 @@ This document covers UI integration.
 
 Goldex Robot machine serves HTML UI (zipped SPA where everything needed is included).
 
-UI communicates with a local JSONRPC API to control the machine hardware. Other end of the UI calls to the business backend.
+UI communicates with a local JSONRPC API to control the machine hardware. Other end of the UI calls its business backend.
 
 There are some limitations, unlike the usual website development (details below).
 
@@ -24,28 +24,27 @@ Standard UI flow is described at the end of the page.
 
 ## UI
 
-Goldex Robot terminal displays customer UI on the screen. UI is an HTML SPA (single page application) and is served locally.
+Goldex Robot displays customer UI on the screen. UI is an HTML SPA (single page application) and is served locally.
 
-The robot exposes an API that allows a developer to access the hardware, interact with a business backend, etc.
+Locally the machine exposes an API that allows to utilize hardware of the machine, interact with a business backend, etc.
 
-UI files must contain `index.html` and `ui-config.yaml`. Index is an entry point for the UI. Config file contains a settings for the UI (see below).
+UI package must contain `index.html` and `manifest.yaml`. Index is an entry point for the UI and a manifest file contains settings for the UI (see below).
 
 WebKit engine is used to serve HTML. There are some limitations:
 
-- The terminal has a touchscreen, so please keep in mind double-taps and mis-taps. See details below;
-- Utilize all the required resources locally, i.e. JS, CSS, icons, etc., except videos;
-- Do not embed huge resources like video into the UI package, use resources downloading instead (see below);
+- The machine has a touchscreen, so please keep in mind double-taps and mis-taps (details below);
+- Provide all required resources locally, i.e. JS, CSS, icons, etc.;
+- Do not embed huge resources like video into the UI package;
 - Do not use transparent video;
-- Browser database is unavailable, use local storage instead;
-- PDF rendering is not supported;
 - WebGL **might** be available;
 - Java is not available;
+- Browser cache is available (don't forget about CORS);
 
 ---
 
 ## API
 
-API is served locally on the terminal. It exposes **methods** to control the terminal from the UI and sends **events** to notify the UI (for instance, optional hardware could send events).
+API is served along with UI HTML - localhost. It exposes **methods** to control the terminal from the UI and sends **events** to notify the UI.
 
 API is a [JSONRPC 2](https://www.jsonrpc.org/specification) API over [Websocket](https://en.wikipedia.org/wiki/WebSocket) connection (`http://localhost:80/ws`).
 
@@ -55,57 +54,39 @@ API is a [JSONRPC 2](https://www.jsonrpc.org/specification) API over [Websocket]
 
 ## More
 
-### Resources downloading
-
-Goldex Robot terminal handles `GET /cached` method locally (i.e. on localhost, where UI is served) to download and cache any required runtime resources like images, videos etc.
-
-Because of there is no a browser cache, it's recommended to use the method to get frequently used huge data once (at the startup) and then request it later with zero-time delivery.
-
-Syntax: `GET /cached?url={url}&auth={auth}`, where `{url}` is URL-encoded path to an external HTTP resource and `{auth}` is (optional) URL-encoded `Authorization` header value.
-
-Do not rely on response headers from the `GET /cached` method as the method does not copy headers from the original request. The original request is assumed successful on any HTTP status 200 to 299.
-
-Cache is purged each time the terminal is restarted.
-
 ### Touchscreen
 
-The terminal have a touchscreen, so keep in mind touchscreen mis-taps.
+The machine has a touchscreen, so keep in mind touchscreen mis-taps.
 
-Scenario:
+In contrast to the development of a regular website, you need to take into account the almost instantaneous page loading speed. 
 
-- a user sees a page on the screen;
-- the user taps a button;
-- the page got changed;
-- a new button appears on the same place on the screen;
-- the user still holds his finger on the touchscreen;
-- suddenly another tap event is fired;
-- the new button now is also get tapped and that leads to unwanted UI behavior;
+The user may not have time to remove their finger from the screen, which may provoke a second tap.
 
-Solution is to keep buttons disabled for some time (about 200-300ms) on a page loading.
+It is best to block buttons/controls immediately after appearing on the screen (about 200-300ms) and after pressing the control.
 
 ### UI package delivery
 
 Delivery of the UI is done by uploading packed (zip) UI files to the Goldex dashboard.
 
-Current zip size limit is 30MiB.
+Current size limit is 30 MiB.
 
-Goldex terminal downloads a fresh package each time it restarts.
+Goldex machine tries to load a new package every time it is restarted. Browser cache is cleared if a new package is loaded.
 
-### UI config
+### Manifest
 
-UI config is `ui-config.yaml` inside the UI zip package.
+UI config is `manifest.yaml` inside the UI zip package.
 
-It defines externally allowed domains (whitelist) and should contain emergency contacts (support phone, email, website, etc.):
+It defines whitelist of domains the UI is allowed to access, and some emergency information to show to the customer in case of machine failure (support phone, email, website, etc.):
 
 ```yaml
-# Text lines to show to a customer (along with "Please contact support team:") in case of critical terminal failure:
+# Text lines to show to a customer (along with "Please contact support team").
 emergency_contacts:
-  - 'Phone: <some phone number here>'
-  - 'Whatever: <whatever>'
-# List of allowed domains/ports to perform fetch, XMLHttpRequests, images loading, GET /cache, etc. (localhost[:80] is allowed by default)
+- 'Phone: <some phone number here>'
+# Allowed domains/ports to perform fetch, XMLHttpRequests, images loading etc.
+# Localhost (80) is allowed by default.
 host_whitelist:
-  - example.com
-  - example.com:8080
+- foo.example.com  # implicitly expands to 'foo.example.com:80' and 'foo.example.com:443'
+- 8.8.8.8:8080     # explicit port 8080
 ```
 
 ---
