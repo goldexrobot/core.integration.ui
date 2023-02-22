@@ -1,0 +1,9 @@
+.spinner {
+	display: inline-block;
+	width: 3em;
+	height: 3em;
+	border: 0.2em solid rgba(255, 255, 255, .3);
+	border-radius: 50%;
+	border-top-color: var(--color-accent);
+	border-bottom-color: var(--color-accent);
+}

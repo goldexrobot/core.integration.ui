@@ -1,0 +1,97 @@
+:root {
+	--background: linear-gradient(180deg, rgba(17, 17, 17, 0.9), rgba(17, 17, 17, 0.6) 30% 90%, rgba(17, 17, 17, 0.75)), url('asset/image/noise.svg');
+	--radius: 20px;
+	--primary-color-hue: 164;
+	--secondary-color-hue: 346;
+	--color-primary: hsla(var(--primary-color-hue), 30%, 35%, 1);
+	--color-secondary: hsla(var(--secondary-color-hue), 30%, 35%, 1);
+	--color-accent: hsla(var(--primary-color-hue), 75%, 50%, 1);
+	--color-text: white;
+	--shadow: 4px 4px 8px 0px rgba(0, 0, 0, 0.15);
+}
+
+body,
+html {
+	height: 100%;
+	min-height: 100%;
+	max-height: 100%;
+	overflow: hidden;
+
+	padding: 0;
+	margin: 0;
+
+	user-select: none;
+	user-zoom: fixed;
+	-webkit-user-select: none;
+
+	background: var(--background);
+}
+
+#root,
+#root>* {
+	height: 100%;
+	min-height: 100%;
+	max-height: 100%;
+	overflow: hidden;
+}
+
+* {
+	font-family: sans-serif;
+	font-weight: 300;
+	font-size: 26px;
+	letter-spacing: 2px;
+	box-sizing: border-box;
+	outline: none;
+}
+
+.page-container {
+	position: absolute;
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+	height: 100%;
+	min-height: 100%;
+	max-height: 100%;
+	overflow: hidden;
+}
+
+/* ###### TYPOGRAPHY ###### */
+
+* {
+	color: var(--color-text);
+}
+
+.accent {
+	color: var(--color-accent);
+}
+
+.monospace {
+	font-family: monospace;
+}
+
+h1 {
+	font-size: 52px;
+	font-weight: 100;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+}
+
+h2 {
+	font-size: 40px;
+	font-weight: 100;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+}
+
+h3,
+h4,
+h5,
+h6 {
+	font-size: 36px;
+	font-weight: 100;
+	padding: 0;
+	margin: 0;
+	text-align: center;
+}

@@ -1,0 +1,89 @@
+.button {
+	color: white;
+	border-radius: var(--radius);
+	text-transform: uppercase;
+
+	box-shadow: var(--shadow);
+	-webkit-box-shadow: var(--shadow);
+
+	background: var(--color-primary);
+	border: 2px solid hsla(var(--primary-color-hue), 30%, 50%, 1);
+	color: white;
+}
+
+/* DISABLED */
+
+.button:disabled {
+	animation: button-disable-anim 200ms forwards linear;
+	-webkit-animation: button-disable-anim 200ms forwards linear;
+}
+
+@keyframes button-disable-anim {
+	to {
+		background: hsla(var(--primary-color-hue), 0%, 30%, 1);
+		border: 2px solid hsla(var(--primary-color-hue), 0%, 45%, 1);
+		color: gray;
+	}
+}
+
+/* PRESSED */
+
+.button.button-pressed:not(.button-secondary) {
+	animation: button-anim-press 100ms forwards linear;
+	-webkit-animation: button-anim-press 100ms forwards linear;
+}
+
+@keyframes button-anim-press {
+	to {
+		background: hsla(var(--primary-color-hue), 35%, 45%, 1);
+	}
+}
+
+/* SECONDARY */
+
+.button.button-secondary {
+	background: var(--color-secondary);
+	border: 2px solid hsla(var(--secondary-color-hue), 30%, 50%, 1);
+}
+
+.button.button-pressed.button-secondary {
+	animation: button-secondary-anim-press 100ms forwards linear;
+	-webkit-animation: button-secondary-anim-press 100ms forwards linear;
+}
+
+@keyframes button-secondary-anim-press {
+	to {
+		background: hsla(var(--secondary-color-hue), 35%, 45%, 1);
+	}
+}
+
+/* SIZES */
+
+.button.button-big {
+	font-size: 1.5em;
+	font-weight: 300;
+	min-width: 17em;
+	padding: 1.25em;
+}
+
+.button.button-default {
+	font-size: 1.25em;
+	font-weight: 300;
+	min-width: 12em;
+	padding: 1.25em;
+}
+
+.button.button-small {
+	font-size: 1em;
+	font-weight: 300;
+	min-width: 10em;
+	padding: 1em;
+}
+
+.button.button-small-square {
+	font-size: 1em;
+	font-weight: 300;
+	min-width: 5em;
+	min-height: 5em;
+	padding: 1em;
+}

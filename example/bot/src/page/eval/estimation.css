@@ -1,0 +1,36 @@
+.estimation {
+	display: flex;
+	flex-direction: column;
+}
+
+.estimation .estimation-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: baseline;
+	margin-top: 1em;
+}
+
+.estimation .estimation-key  {
+	text-align: left;
+	font-size: 42px;
+}
+
+.estimation .estimation-val  {
+	text-align: left;
+	font-size: 42px;
+	padding-left: 2em;
+}
+
+.estimation .estimation-val.estimation-total  {
+	text-align: left;
+	font-size: 48px;
+	padding-left: 2em;
+	font-weight: 400;
+}
+
+.estimation .estimation-divider  {
+	margin: 2em 0 1em 0;
+	padding: 0;
+	border-top: 2px solid rgba(255,255,255,0.5);
+}

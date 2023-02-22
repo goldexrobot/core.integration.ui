@@ -1,0 +1,4 @@
+version: 1
+emergency_contacts:
+- 'Support phone: 23 63 65'
+host_whitelist: []
