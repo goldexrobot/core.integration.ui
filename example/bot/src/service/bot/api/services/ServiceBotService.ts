@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { CameraPhoto } from '../models/CameraPhoto';
 import type { StatusResult } from '../models/StatusResult';
 
 import { ApiResponse } from '../core/ApiResponse';import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -11,31 +10,10 @@ export class ServiceBotService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
 
     /**
-     * Frontal camera photo
-     * Takes a photo from a frontal camera and returns Base64-encoded JPEG bytes
-     * @param requestBody Empty params
-     * @returns CameraPhoto Result
-     * @throws ApiError
-     */
-    public serviceFrontalPhoto(
-requestBody?: any,
-):Promise<ApiResponse<CameraPhoto>>{
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/service.frontal_photo',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                504: `Camera is unavailable. Try again`,
-            },
-        });
-    }
-
-    /**
-     * Out of service
-     * Сall this method in case of emergency to switch the machine to the out of service mode.
+     * Kill the UI
+     * Force the machine to show out of service page.
  *
- * The machine will display a service page and the UI will be unloaded.
+ * Current UI will be unloaded.
      * @param requestBody Empty params
      * @returns any Empty result
      * @throws ApiError

@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { DispenserExtractRequest } from '../models/DispenserExtractRequest';
+import type { DispenserExtractResult } from '../models/DispenserExtractResult';
 import type { DispenserSlotsResult } from '../models/DispenserSlotsResult';
 
 import { ApiResponse } from '../core/ApiResponse';import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -12,13 +13,20 @@ export class DispenserBotService {
 
     /**
      * Dispense items
+     * Requires hardware to extract items from the dispenser and bring them to the outlet window.
+ *
+ * On completion, the outlet window will be opened with items inside.
+ *
+ * The customer should have enough time to take items out of the window.
+ *
+ * Then `outlet.close` should be called to close the outlet window (we propose customer explicit action or a timeout).
      * @param requestBody Params
-     * @returns any Empty result
+     * @returns DispenserExtractResult Result
      * @throws ApiError
      */
     public dispenserExtract(
 requestBody?: DispenserExtractRequest,
-):Promise<ApiResponse<any>>{
+):Promise<ApiResponse<DispenserExtractResult>>{
         return this.httpRequest.request({
             method: 'POST',
             url: '/dispenser.extract',

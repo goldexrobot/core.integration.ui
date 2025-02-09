@@ -3,6 +3,6 @@
 /* eslint-disable */
 
 /**
- * Contains Base-64 encoded bytes of JPEG
+ * Dispenser slot number
  */
-export type CameraPhoto = string;
+export type DispenserSlot = number;

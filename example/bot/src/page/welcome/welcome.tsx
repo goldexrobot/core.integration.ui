@@ -20,14 +20,17 @@ export function WelcomePage() {
 
 	const [loading, setLoading] = useState(true);
 	const [loadingInstant, setLoadingInstant] = useState(true);
-	const [cellGridEnabled, setCellGridEnabled] = useState(true);
+	const [storageCanExtract, setStorageCanExtract] = useState(true);
+	const [hasDispenser, setHasDispenser] = useState(true);
 	const [failure, setFailure] = useState<Failure | undefined>(undefined);
 
 	useEffect(() => {
 		// get machine features
 		BotAPI().service.serviceStatus().then((res) => res.promise()).then(status => {
 			// has cell-grided storage, so is able to handle shop/pawnshop flow
-			setCellGridEnabled(status.features.storage_can_extract);
+			setStorageCanExtract(status.features.storage_can_extract);
+			// has dispenser device
+			setHasDispenser(status.features.has_dispenser);
 
 			setLoadingInstant(false);
 			setLoading(false);
@@ -74,6 +77,10 @@ export function WelcomePage() {
 		nav('/storage');
 	}
 
+	const showDispenser = () => {
+		nav('/dispenser');
+	}
+
 	return (
 		<div className='page'>
 			<header>
@@ -88,9 +95,16 @@ export function WelcomePage() {
 						</Button>
 					</div>
 					{
-						cellGridEnabled && <div className='mt-5'>
+						storageCanExtract && <div className='mt-5'>
 							<Button size={ButtonSize.Default} secondary onClick={() => { showStorage() }}>
 								Show storage
+							</Button>
+						</div>
+					}
+					{
+						hasDispenser && <div className='mt-5'>
+							<Button size={ButtonSize.Small} secondary onClick={() => { showDispenser() }}>
+								Dispenser
 							</Button>
 						</div>
 					}

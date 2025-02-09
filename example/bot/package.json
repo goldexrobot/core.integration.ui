@@ -6,9 +6,9 @@
   "scripts": {
     "build": "webpack --config webpack.production.js",
     "start": "webpack serve --config webpack.development.js",
-    "gen": "openapi --input ../../schemas/bot-customer-api.json  --output ./src/service/bot/api --postfix BotService -c fetch --name Client --exportCore false",
+    "gen": "openapi --input ../../bot-customer-api.json  --output ./src/service/bot/api --postfix BotService -c fetch --name Client --exportCore false",
     "postgen": "replace-in-file --quiet --configFile=./src/service/bot/string-replace.config.js",
-    "mock": "open-api-mocker -s ../../schemas/bot-customer-api.json -w"
+    "mock": "open-api-mocker -s ../../bot-customer-api.json -w"
   },
   "devDependencies": {
     "@types/node": "^17.0.36",

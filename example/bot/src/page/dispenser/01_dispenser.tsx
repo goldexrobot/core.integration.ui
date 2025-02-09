@@ -1,18 +1,16 @@
-import './page.css';
+import './../page.css';
 
-import { Button, HelpButton } from '../component/button';
-import { Header, HeaderSize } from '../component/header';
-import { useEffect, useState } from 'react';
-import { Modal } from '../component/modal';
-import { Loading } from '../component/loading';
-import { BotAPI, logger, NavIntent } from '../common';
+import { Button, HelpButton } from '../../component/button';
+import { Header, HeaderSize } from '../../component/header';
 import { useNavigate } from 'react-router';
-import { DispenserSlotState } from '../service/bot/api/models/DispenserSlotState';
-import { DispenserSlot } from '../component/dispenser_slot';
-import { DispenserExtractionStep } from '../service/bot/api/models/DispenserExtractionStep';
-import { StatusResult } from '../service/bot/api';
+import { Modal } from '../../component/modal';
+import { useEffect, useState } from 'react';
+import { Loading } from '../../component/loading';
+import { BotAPI, logger, NavIntent } from '../../common';
+import { DispenserExtractionStep, DispenserSlotState, StatusResult } from '../../service/bot/api';
+import { DispenserSlot } from './slot';
 
-export function HomePage() {
+export function DispenserPage() {
 	const nav = useNavigate();
 
 	enum Failure {
@@ -72,7 +70,7 @@ export function HomePage() {
 				setFailure(Failure.Power);
 				return;
 			}
-			nav('/extraction', { state: new NavIntent().withPageArgs(pushes) });
+			nav('/dispenser/progress', { state: new NavIntent().withPageArgs(pushes) });
 		}).catch(err => {
 			logger.fatal('Failed preparing dispenser', err);
 		}).finally(() => {
@@ -110,7 +108,7 @@ export function HomePage() {
 			</header>
 
 			<article>
-				<div className='d-flex flex-row gap-5'>
+				<div className='d-flex flex-column align-items-center' style={{overflowY: 'scroll'}}>
 					{
 						slots && slots.map((v) => {
 							if (v.enabled) {
@@ -125,6 +123,9 @@ export function HomePage() {
 			</article>
 
 			<footer>
+				<Button onClick={() => { nav('/', { state: new NavIntent().withBackwardAnimation() }) }}>
+					Back
+				</Button>
 				<HelpButton />
 			</footer>
 
@@ -149,5 +150,86 @@ export function HomePage() {
 			<Loading show={loading} instant={loadingInstant} />
 		</div >
 	);
-}
 
+
+	/*
+		const nav = useNavigate();
+	
+		const [loading, setLoading] = useState(true);
+		const [storageState, setStorageState] = useState<StorageStateResult | undefined>(undefined);
+		const [failure, setFailure] = useState(false);
+	
+		useEffect(() => {
+			BotAPI().storage.storageState({}).then(res => res.promise()).then(ss => {
+				setStorageState(ss);
+			}).catch(err => {
+				logger.error("Retrieving storage state", err);
+				setFailure(true);
+			}).finally(() => {
+				setLoading(false);
+			})
+		}, []);
+	
+		const extractCell = (cell:string) => {
+			nav('/dispenser/progress', { state: new NavIntent().withPageArgs(cell) });
+		}
+	
+		return (
+			<div className='page' onClick={(e) => { }}>
+				<header>
+					<Header size={HeaderSize.Compact}></Header>
+				</header>
+	
+				<article>
+					<div>
+						<HeadIcon name='la-boxes' />
+	
+						<h1>Allocated slots</h1>
+	
+						{
+							storageState && storageState.allocated.length ?
+							<div style={{ overflowY: 'hidden', maxHeight: '850px'}}>
+							{
+								storageState.allocated.map((v, i) =>
+									<Button size={ButtonSize.SmallSquare} className='m-2' onClick={() => { extractCell(v.cell) }} key={'storage_cell_' + i}>
+										{v.cell}
+									</Button>
+								)
+							}
+							</div>
+	
+							: <div>Nothing here yet</div>
+						}
+	
+					</div>
+				</article>
+	
+				<footer>
+					<Button onClick={() => { nav('/', { state: new NavIntent().withBackwardAnimation() }) }}>
+						Back
+					</Button>
+					<HelpButton />
+				</footer>
+	
+				<Modal shown={failure}>
+					<header>
+						<h1>Oops!</h1>
+					</header>
+					<article>
+						<p>
+							Failed to get storage state.
+						</p>
+						<p>Please come back later!</p>
+					</article>
+					<footer>
+						<Button onClick={() => { nav('/', { state: new NavIntent().withBackwardAnimation() }) }}>
+							Close
+						</Button>
+					</footer>
+				</Modal>
+	
+				<Loading show={loading} />
+			</div>
+		);
+	*/
+}

@@ -1,13 +1,14 @@
-import './page.css';
+import './../page.css';
 
-import { HelpButton } from '../component/button';
-import { Header, HeaderSize, HeadIcon } from '../component/header';
-import { BotAPI, logger, NavIntent } from '../common';
-import { useLocation, useNavigate } from 'react-router';
-import { DispenserExtractionStep } from '../service/bot/api';
+import { HelpButton } from '../../component/button';
+import { Header, HeaderSize, HeadIcon } from '../../component/header';
 import { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { BotAPI, logger, NavIntent } from '../../common';
+import { DispenserExtractionStep } from '../../service/bot/api/models/DispenserExtractionStep';
 
-export function ExtractionPage() {
+
+export function DispenserExtractPage() {
 	const nav = useNavigate();
 
 	const steps = NavIntent.fromLocation(useLocation()).args as DispenserExtractionStep[];
@@ -16,7 +17,8 @@ export function ExtractionPage() {
 		BotAPI().dispenser.dispenserExtract({ steps: steps }).then(res => {
 			return res.promise();
 		}).then(res => {
-			nav('/', { state: new NavIntent().withBackwardAnimation() });
+			logger.info(`Outlet window opened`);
+			nav('/dispenser/outlet');
 		}).catch(err => {
 			logger.fatal(`Failed dispensing items`, err);
 		});
@@ -38,5 +40,5 @@ export function ExtractionPage() {
 			</footer>
 		</div >
 	);
-}
 
+}

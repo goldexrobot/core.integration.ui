@@ -6,6 +6,7 @@ import type { OpenAPIConfig } from './core/OpenAPI';
 import { FetchHttpRequest } from './core/FetchHttpRequest';
 
 import { BusinessBotService } from './services/BusinessBotService';
+import { DispenserBotService } from './services/DispenserBotService';
 import { EvalBotService } from './services/EvalBotService';
 import { ServiceBotService } from './services/ServiceBotService';
 import { StorageBotService } from './services/StorageBotService';
@@ -16,6 +17,7 @@ type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class Client {
 
     public readonly business: BusinessBotService;
+    public readonly dispenser: DispenserBotService;
     public readonly eval: EvalBotService;
     public readonly service: ServiceBotService;
     public readonly storage: StorageBotService;
@@ -26,7 +28,7 @@ export class Client {
     constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
         this.request = new HttpRequest({
             BASE: config?.BASE ?? '',
-            VERSION: config?.VERSION ?? '1.0.0',
+            VERSION: config?.VERSION ?? '1.2.0',
             WITH_CREDENTIALS: config?.WITH_CREDENTIALS ?? false,
             CREDENTIALS: config?.CREDENTIALS ?? 'include',
             TOKEN: config?.TOKEN,
@@ -37,6 +39,7 @@ export class Client {
         });
 
         this.business = new BusinessBotService(this.request);
+        this.dispenser = new DispenserBotService(this.request);
         this.eval = new EvalBotService(this.request);
         this.service = new ServiceBotService(this.request);
         this.storage = new StorageBotService(this.request);

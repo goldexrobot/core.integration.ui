@@ -5,4 +5,4 @@
 /**
  * Dispenser slot number
  */
-export type Slot = number;
+export type DispenserSlot = number;

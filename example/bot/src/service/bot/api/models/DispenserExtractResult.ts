@@ -2,10 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { StorageCell } from './StorageCell';
-
-export type StorageExtractResult = {
-    cell: StorageCell;
+export type DispenserExtractResult = {
     /**
      * In case of hardware failure this flag is set. You should complete current customer session and call `service.kill` method.
  *

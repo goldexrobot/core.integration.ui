@@ -13,7 +13,7 @@ export type EvalHydroAccepted = {
      */
     carat: string;
     /**
-     * Evaluation confidence, 1.0 - is confident, 0.0 - is not, 0.8 - is "pretty" confident
+     * Evaluation confidence, 1.0 - is confident, 0.0 - is not, 0.8 - is 'pretty' confident
      */
     confidence: number;
     /**

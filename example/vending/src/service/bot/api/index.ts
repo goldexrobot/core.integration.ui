@@ -4,20 +4,13 @@
 export { Client } from './Client';
 
 
-export type { CameraPhoto } from './models/CameraPhoto';
-export type { DispenserStep } from './models/DispenserStep';
+export type { DispenserExtractionStep } from './models/DispenserExtractionStep';
+export type { DispenserExtractRequest } from './models/DispenserExtractRequest';
+export type { DispenserSlot } from './models/DispenserSlot';
+export type { DispenserSlotsResult } from './models/DispenserSlotsResult';
+export type { DispenserSlotState } from './models/DispenserSlotState';
 export type { ErrorResult } from './models/ErrorResult';
-export type { ExtractRequest } from './models/ExtractRequest';
-export type { HardwareListResult } from './models/HardwareListResult';
-export type { HardwareRequest } from './models/HardwareRequest';
-export type { HardwareResult } from './models/HardwareResult';
-export type { ProxyRequest } from './models/ProxyRequest';
-export type { ProxyResult } from './models/ProxyResult';
-export type { Slot } from './models/Slot';
-export type { SlotsResult } from './models/SlotsResult';
-export type { SlotState } from './models/SlotState';
 export type { StatusResult } from './models/StatusResult';
 
-export { BusinessBotService } from './services/BusinessBotService';
 export { DispenserBotService } from './services/DispenserBotService';
 export { ServiceBotService } from './services/ServiceBotService';

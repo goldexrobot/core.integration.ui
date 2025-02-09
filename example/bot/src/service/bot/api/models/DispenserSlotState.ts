@@ -2,12 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Slot } from './Slot';
+import type { DispenserSlot } from './DispenserSlot';
 
 /**
  * Dispenser slot state
  */
-export type SlotState = {
+export type DispenserSlotState = {
     enabled: boolean;
-    slot: Slot;
+    slot: DispenserSlot;
 };

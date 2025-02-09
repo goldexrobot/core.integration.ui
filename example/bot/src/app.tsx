@@ -24,6 +24,9 @@ import { StorageOutletPage } from './page/storage/03_outlet';
 import { WebsocketClient } from './service/bot/websocket/client';
 import { useEffect, useState } from 'react';
 import { Loading } from './component/loading';
+import { DispenserPage } from './page/dispenser/01_dispenser';
+import { DispenserExtractPage } from './page/dispenser/02_extract';
+import { DispenserOutletPage } from './page/dispenser/03_outlet';
 
 // known routes/pages
 const routes = new Map<string, JSX.Element>([
@@ -41,6 +44,10 @@ const routes = new Map<string, JSX.Element>([
 	['/storage', <StoragePage />],
 	['/storage/progress', <StorageExtractPage />],
 	['/storage/outlet', <StorageOutletPage />],
+
+	['/dispenser', <DispenserPage />],
+	['/dispenser/progress', <DispenserExtractPage />],
+	['/dispenser/outlet', <DispenserOutletPage />],
 ]);
 
 const apiURL = process.env.UI_WEBSOCKET || 'ws://localhost/ws';

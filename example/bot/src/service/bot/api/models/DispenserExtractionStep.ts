@@ -2,12 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Slot } from './Slot';
+import type { DispenserSlot } from './DispenserSlot';
 
 /**
  * Which slot and how many times to push
  */
-export type DispenserStep = {
-    slot: Slot;
+export type DispenserExtractionStep = {
+    slot: DispenserSlot;
     times: number;
 };
