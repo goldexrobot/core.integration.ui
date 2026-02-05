@@ -8,11 +8,11 @@ This document covers UI integration.
 
 ## TL;DR
 
-Machine serves HTML UI (zipped SPA where everything needed is included) in WebKit browser.
+Machine serves HTML UI (zipped SPA with everything needed included) in WebKit browser.
 
-The UI communicates over WebSocket with a local JSONRPC API to control the machine hardware.
+The UI communicates over `JSONRPC + WebSocket` API to control the machine hardware.
 
-There are some limitations, unlike the usual website development (details below).
+There are some **limitations** unlike the usual website development.
 
 ---
 
@@ -20,9 +20,9 @@ There are some limitations, unlike the usual website development (details below)
 
 Goldex Robot displays UI on the machine's screen. UI is an HTML SPA (single page application) and is served locally.
 
-Locally the machine exposes a UI API that allows to use hardware of the machine.
+Locally the machine exposes a UI API (JSONRPC+WebSocket) that allows to use hardware of the machine.
 
-UI package must contain `index.html` and `manifest.yaml`. Index is an entry point for the UI and a manifest file contains settings for the UI (see below).
+UI package must contain `index.html` and `manifest.yaml`. Index is the entry point for the UI. The manifest file contains settings for the UI and hosts whitelist.
 
 WebKit engine is used to serve HTML.
 
@@ -39,7 +39,7 @@ WebKit engine is used to serve HTML.
 
 ## UI API
 
-UI API is served along with UI HTML - at localhost. It exposes **methods** to control the terminal from the UI and sends **events** to notify the UI.
+UI API is served along with UI HTML - locally. It exposes **methods** to control the terminal from the UI and sends **events** to notify the UI.
 
 The API is a [JSONRPC 2](https://www.jsonrpc.org/specification) API over [Websocket](https://en.wikipedia.org/wiki/WebSocket) connection (`http://localhost:80/ws`).
 
