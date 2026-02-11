@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ServiceArgs } from '../models/ServiceArgs';
 import type { StatusResult } from '../models/StatusResult';
 
 import { ApiResponse } from '../core/ApiResponse';import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -8,6 +9,24 @@ import { ApiResponse } from '../core/ApiResponse';import type { BaseHttpRequest 
 export class ServiceBotService {
 
     constructor(public readonly httpRequest: BaseHttpRequest) {}
+
+    /**
+     * Get UI arguments
+     * Return the arguments of the GR core command which has been sent to show the UI.
+     * @param requestBody Empty params
+     * @returns ServiceArgs Result
+     * @throws ApiError
+     */
+    public serviceArgs(
+requestBody?: any,
+):Promise<ApiResponse<ServiceArgs>>{
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/service.args',
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
 
     /**
      * Kill the UI

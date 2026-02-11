@@ -11,6 +11,7 @@ export class BusinessBotService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
 
     /**
+     * @deprecated
      * Call business backend
      * Requires Goldex backend to sign and send an HTTP POST request to the business backend.
  *

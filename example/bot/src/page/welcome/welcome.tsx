@@ -32,6 +32,11 @@ export function WelcomePage() {
 			// has dispenser device
 			setHasDispenser(status.features.has_dispenser);
 
+			// subscribe to photo upload events
+			return BotAPI().subscription.subEvalPhotoUpload({
+				subscribe: true,
+			})
+		}).then((res) => res.promise()).then(() => {
 			setLoadingInstant(false);
 			setLoading(false);
 		}).catch(err => {

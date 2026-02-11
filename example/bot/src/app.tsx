@@ -63,7 +63,10 @@ export function App() {
 		},
 		onDisconnected() {
 			setConnected(false);
-		}
+		},
+		onNotification(method, params) {
+			console.info('Received notification', method, params);
+		},
 	}));
 
 	useEffect(() => {

@@ -10,6 +10,7 @@ import { DispenserBotService } from './services/DispenserBotService';
 import { EvalBotService } from './services/EvalBotService';
 import { ServiceBotService } from './services/ServiceBotService';
 import { StorageBotService } from './services/StorageBotService';
+import { SubscriptionBotService } from './services/SubscriptionBotService';
 import { WindowBotService } from './services/WindowBotService';
 
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
@@ -21,6 +22,7 @@ export class Client {
     public readonly eval: EvalBotService;
     public readonly service: ServiceBotService;
     public readonly storage: StorageBotService;
+    public readonly subscription: SubscriptionBotService;
     public readonly window: WindowBotService;
 
     public readonly request: BaseHttpRequest;
@@ -43,6 +45,7 @@ export class Client {
         this.eval = new EvalBotService(this.request);
         this.service = new ServiceBotService(this.request);
         this.storage = new StorageBotService(this.request);
+        this.subscription = new SubscriptionBotService(this.request);
         this.window = new WindowBotService(this.request);
     }
 }

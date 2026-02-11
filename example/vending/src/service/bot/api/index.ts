@@ -10,6 +10,7 @@ export type { DispenserSlot } from './models/DispenserSlot';
 export type { DispenserSlotsResult } from './models/DispenserSlotsResult';
 export type { DispenserSlotState } from './models/DispenserSlotState';
 export type { ErrorResult } from './models/ErrorResult';
+export type { ServiceArgs } from './models/ServiceArgs';
 export type { StatusResult } from './models/StatusResult';
 
 export { DispenserBotService } from './services/DispenserBotService';
