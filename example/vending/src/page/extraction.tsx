@@ -16,6 +16,10 @@ export function ExtractionPage() {
 		BotAPI().dispenser.dispenserExtract({ steps: steps }).then(res => {
 			return res.promise();
 		}).then(res => {
+			if (res.hardware_failed) {
+				logger.fatal(`Hardware failed during extraction`, null);
+				return;
+			}
 			nav('/', { state: new NavIntent().withBackwardAnimation() });
 		}).catch(err => {
 			logger.fatal(`Failed dispensing items`, err);

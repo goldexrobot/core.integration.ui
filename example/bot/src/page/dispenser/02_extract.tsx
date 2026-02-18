@@ -17,6 +17,10 @@ export function DispenserExtractPage() {
 		BotAPI().dispenser.dispenserExtract({ steps: steps }).then(res => {
 			return res.promise();
 		}).then(res => {
+			if (res.hardware_failed) {
+				logger.fatal(`Hardware failed during extraction`, null);
+				return;
+			}
 			logger.info(`Outlet window opened`);
 			nav('/dispenser/outlet');
 		}).catch(err => {
