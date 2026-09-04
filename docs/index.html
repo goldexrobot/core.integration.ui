@@ -1,79 +1,46 @@
-<!-- HTML for static distribution bundle build -->
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 
 <head>
-	<meta charset="UTF-8">
-	<title>Swagger UI</title>
-	<link rel="stylesheet" type="text/css" href="./swagger-ui.css" />
-	<link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
-	<link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
-	<style>
-		html {
-			box-sizing: border-box;
-			overflow: -moz-scrollbars-vertical;
-			overflow-y: scroll;
-		}
-
-		*,
-		*:before,
-		*:after {
-			box-sizing: inherit;
-		}
-
-		body {
-			margin: 0;
-			background: #fafafa;
-		}cd
-	</style>
+	<meta charset="utf-8">
+	<title>UI API</title>
 </head>
 
 <body>
-	<div id="swagger-ui"></div>
-
-	<script src="./swagger-ui-bundle.js" charset="UTF-8"> </script>
-	<script src="./swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
+	<div id="app"></div>
 	<script>
-		let urls = [
-			{ url: "./bot-customer-api.json", name: "bot", htag: 'bot' },
-			{ url: "./vending-customer-api.json", name: "vending", htag: 'vendin' },
-		];
-		let primaryUrl = 'v1';
-
-		const DisableTryItOutPlugin = function () {
-			return {
-				statePlugins: {
-					spec: {
-						wrapSelectors: {
-							allowTryItOutFor: () => () => false
-						}
+		function init() {
+			Scalar.createApiReference('#app', {
+				sources: [
+					{
+						title: 'Bot: Customer API',
+						url: './bot-customer-api.json',
+						default: true,
+					},
+					{
+						title: 'Vending: Customer API',
+						url: './vending-customer-api.json'
+					},
+					{
+						title: 'Bot: Collector API',
+						url: './bot-collector-api.json'
+					},
+					{
+						title: 'Vending: Collector API',
+						url: './vending-collector-api.json'
 					}
-				}
-			}
+				],
+				defaultOpenAllTags: true,
+				layout: 'classic',
+				telemetry: false,
+				hideTestRequestButton: true,
+				modelsSectionLabel: 'Schemas',
+				expandAllSchemaProperties: true,
+				defaultRequestBodyView: 'raw',
+			})
 		}
-
-		window.onload = function () {
-			// Begin Swagger UI call region
-			const ui = SwaggerUIBundle({
-				urls: urls,
-				'urls.primaryName': primaryUrl,
-				dom_id: '#swagger-ui',
-				deepLinking: true,
-				presets: [
-					SwaggerUIBundle.presets.apis,
-					SwaggerUIStandalonePreset
-				],
-				plugins: [
-					SwaggerUIBundle.plugins.DownloadUrl,
-					DisableTryItOutPlugin,
-				],
-				layout: "StandaloneLayout"
-			});
-			// End Swagger UI call region
-
-			window.ui = ui;
-		};
 	</script>
+	<script src="./scalar-standalone.js" onload="init()"></script>
 </body>
 
 </html>
